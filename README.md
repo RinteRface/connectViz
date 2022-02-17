@@ -16,14 +16,13 @@ You can install the development version of `{connectViz}` like so:
 remotes::install_github("RinteRface/connectViz")
 ```
 
-## Example
+## Contribute
+This package is still a proof of concept. If you want to help improving it and test it on your own RStudio Connect server:
+- Install it.
+- Run the [vignette](https://github.com/RinteRface/connectViz/blob/main/inst/examples/simple-rmd/analysis.Rmd).
+- Report any error [here](https://github.com/RinteRface/connectViz/issues), by submitting a new issue, including the RStudio Connect version, `{connectapi}` version ... 
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(connectViz)
-## basic example code
-```
+Thanks in advance for your support. 
 
 ## Code of Conduct
   
