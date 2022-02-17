@@ -225,6 +225,6 @@ create_pie_chart <- function(data) {
   data %>%
     e_charts(data[, 1]) %>%
     e_pie(.data$Percentage, radius = c("50%", "70%")) %>%
-    e_title(sprintf("RSC %s (%)", names(data)[[1]])) %>%
+    e_title(paste("RSC", names(data)[[1]], "(%)")) %>%
     e_tooltip()
 }
