@@ -15,7 +15,7 @@ create_app_daily_usage <- function(apps_usage) {
   # Join all data
   targeted_rsc_apps_usage <- reactive({
     apps_usage %>%
-      dplyr::filter(.data$app_name == .data$input$selected_app)
+      dplyr::filter(.data$app_name == .data[[input$selected_app]])
   })
 
   # Calendar chart
@@ -57,7 +57,7 @@ create_app_daily_usage <- function(apps_usage) {
 create_cumulated_duration_per_user <- function(apps_usage) {
   renderEcharts4r({
     apps_usage %>%
-      filter(.data$app_name == .data$input$selected_app) %>%
+      filter(.data$app_name == .data[[input$selected_app]]) %>%
       mutate(duration = as.numeric(.data$duration)) %>%
       group_by(.data$username) %>%
       summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
@@ -85,7 +85,7 @@ create_cumulated_duration_per_user <- function(apps_usage) {
 create_cumulated_hits_per_user <- function(apps_usage) {
   renderEcharts4r({
     apps_usage %>%
-      filter(.data$app_name == .data$input$selected_app) %>%
+      filter(.data$app_name == .data[[input$selected_app]]) %>%
       group_by(.data$username) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%
@@ -123,7 +123,7 @@ create_dev_ranking_chart <- function(ranking) {
 
   renderEcharts4r({
     ranking %>%
-      filter(.data$n_apps > .data$input$apps_threshold) %>%
+      filter(.data$n_apps > .data[[input$apps_threshold]]) %>%
       arrange(.data$n_apps) %>%
       e_charts(.data$username) %>%
       e_bar(.data$n_apps) %>%
@@ -156,7 +156,7 @@ create_dev_project_overview <- function(ranking, client, apps_usage) {
 
   renderVisNetwork({
     apps <- get_rsc_developer_apps_list(
-      connectapi::user_guid_from_username(client, .data$input$app_developer),
+      connectapi::user_guid_from_username(client, .data[[input$app_developer]]),
       apps_usage
     )
 
@@ -169,7 +169,7 @@ create_dev_project_overview <- function(ranking, client, apps_usage) {
       id = seq_len(nrow(apps) + 1),
       group = groups,
       label = c(
-        .data$input$app_developer,
+        .data[[input$app_developer]],
         paste0(
           apps$app_name,
           " (n view: ",
