@@ -4,12 +4,13 @@
 #' See \url{https://echarts4r.john-coene.com/articles/chart_types.html#calendar-1}.
 #'.
 #' @param apps_usage Second element returned by \link{create_app_ranking}.
+#' @param input Shiny input object.
 #' @return A calendar chart displaying daily app usage.
 #' @export
 #' @importFrom shiny selectInput reactive
 #' @import echarts4r
 #' @importFrom rlang .data
-create_app_daily_usage <- function(apps_usage) {
+create_app_daily_usage <- function(apps_usage, input) {
   selectInput("selected_app", "Select an application", apps_usage$app_name)
 
   # Join all data
@@ -48,13 +49,14 @@ create_app_daily_usage <- function(apps_usage) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
+#' @param input Shiny input object.
 #'
 #' @return An echarts4r barchart.
 #' @export
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
-create_cumulated_duration_per_user <- function(apps_usage) {
+create_cumulated_duration_per_user <- function(apps_usage, input) {
   renderEcharts4r({
     apps_usage %>%
       filter(.data$app_name == .data[[input$selected_app]]) %>%
@@ -76,13 +78,14 @@ create_cumulated_duration_per_user <- function(apps_usage) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
+#' @param input Shiny input object.
 #'
 #' @return An echarts4r barchart.
 #' @export
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
-create_cumulated_hits_per_user <- function(apps_usage) {
+create_cumulated_hits_per_user <- function(apps_usage, input) {
   renderEcharts4r({
     apps_usage %>%
       filter(.data$app_name == .data[[input$selected_app]]) %>%
@@ -105,6 +108,7 @@ create_cumulated_hits_per_user <- function(apps_usage) {
 #' See \link{create_dev_ranking}.
 #'
 #' @param ranking Obtained after calling \link{create_dev_ranking}.
+#' @param input Shiny input object.
 #'
 #' @return An echarts4r bar chart.
 #' @export
@@ -112,7 +116,7 @@ create_cumulated_hits_per_user <- function(apps_usage) {
 #' @import dplyr
 #' @importFrom rlang .data
 #' @importFrom shiny numericInput
-create_dev_ranking_chart <- function(ranking) {
+create_dev_ranking_chart <- function(ranking, input) {
   numericInput(
     "apps_threshold",
     "N app threshold",
@@ -141,12 +145,13 @@ create_dev_ranking_chart <- function(ranking) {
 #' to get developers sorted by decreasing number of projects in the shiny selectInput.
 #' @param client RSC client. See \link{create_rsc_client}.
 #' @param apps_usage First element returned by \link{create_app_ranking}.
+#' @param input Shiny input object.
 #' @return A visNetwork htmlwidget with developer projects.
 #' @export
 #' @importFrom shiny selectInput
 #' @import visNetwork
 #' @importFrom rlang .data
-create_dev_project_overview <- function(ranking, client, apps_usage) {
+create_dev_project_overview <- function(ranking, client, apps_usage, input) {
   selectInput(
     "app_developer",
     "Select a developer",

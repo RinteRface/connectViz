@@ -4,10 +4,12 @@
 \alias{create_dev_ranking_chart}
 \title{Create developers ranking bar chart}
 \usage{
-create_dev_ranking_chart(ranking)
+create_dev_ranking_chart(ranking, input)
 }
 \arguments{
 \item{ranking}{Obtained after calling \link{create_dev_ranking}.}
+
+\item{input}{Shiny input object.}
 }
 \value{
 An echarts4r bar chart.

@@ -4,10 +4,12 @@
 \alias{create_cumulated_hits_per_user}
 \title{Create cumulated app hits/user}
 \usage{
-create_cumulated_hits_per_user(apps_usage)
+create_cumulated_hits_per_user(apps_usage, input)
 }
 \arguments{
 \item{apps_usage}{First element returned by \link{create_app_ranking}.}
+
+\item{input}{Shiny input object.}
 }
 \value{
 An echarts4r barchart.
