@@ -12,6 +12,8 @@
 #' @importFrom rlang .data
 create_app_daily_usage <- function(apps_usage, selected_app) {
 
+  Date <- Freq <- NULL
+
   # Join all data
   targeted_rsc_apps_usage <- reactive({
     apps_usage %>%
@@ -28,11 +30,11 @@ create_app_daily_usage <- function(apps_usage, selected_app) {
     year_range <- c(min(calendar_data$Date), max(calendar_data$Date))
 
     calendar_data %>%
-      e_charts(.data$Date, width = "1200px") %>%
-      e_calendar(range = .data$year_range) %>%
-      e_effect_scatter(.data$Freq, coord_system = "calendar") %>%
+      e_charts(Date, width = "1200px") %>%
+      e_calendar(range = year_range) %>%
+      e_effect_scatter(Freq, coord_system = "calendar") %>%
       e_visual_map(
-        max = .data$max_usage,
+        max = max_usage,
         inRange = list(
           color = c('#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695')
         )
@@ -56,6 +58,9 @@ create_app_daily_usage <- function(apps_usage, selected_app) {
 #' @import dplyr
 #' @importFrom rlang .data
 create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
+
+  username <- cum_duration <- NULL
+
   renderEcharts4r({
     apps_usage %>%
       filter(.data$app_name == !!selected_app) %>%
@@ -63,8 +68,8 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
       group_by(.data$username) %>%
       summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
       arrange(.data$cum_duration) %>%
-      e_charts(.data$username) %>%
-      e_bar(.data$cum_duration) %>%
+      e_charts(username) %>%
+      e_bar(cum_duration) %>%
       e_flip_coords() %>%
       e_axis_labels(x = "Duration (hours)", y = "End user") %>%
       e_tooltip()
@@ -85,13 +90,16 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 #' @import dplyr
 #' @importFrom rlang .data
 create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
+
+  username <- NULL
+
   renderEcharts4r({
     apps_usage %>%
       filter(.data$app_name == !!selected_app) %>%
       group_by(.data$username) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%
-      e_charts(.data$username) %>%
+      e_charts(username) %>%
       e_bar(n) %>%
       e_flip_coords() %>%
       e_axis_labels(x = "Number of hits (app visit)", y = "End user") %>%
@@ -115,12 +123,15 @@ create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
 #' @import dplyr
 #' @importFrom rlang .data
 create_dev_ranking_chart <- function(ranking, threshold) {
+
+  username <- n_apps <- NULL
+
   renderEcharts4r({
     ranking %>%
       filter(.data$n_apps > !!threshold) %>%
       arrange(.data$n_apps) %>%
-      e_charts(.data$username) %>%
-      e_bar(.data$n_apps) %>%
+      e_charts(username) %>%
+      e_bar(n_apps) %>%
       e_flip_coords() %>%
       e_tooltip()
   })
@@ -138,9 +149,7 @@ create_dev_ranking_chart <- function(ranking, threshold) {
 #' @param selected_dev Developer to select. You'll need a selectInput.
 #' @return A visNetwork htmlwidget with developer projects.
 #' @export
-#' @importFrom shiny selectInput
 #' @import visNetwork
-#' @importFrom rlang .data
 create_dev_project_overview <- function(ranking, client, apps_usage, selected_dev) {
 
   renderVisNetwork({
