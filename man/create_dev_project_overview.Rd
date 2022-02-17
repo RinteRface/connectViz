@@ -4,7 +4,7 @@
 \alias{create_dev_project_overview}
 \title{Create developer project network overview}
 \usage{
-create_dev_project_overview(ranking, client, apps_usage, input)
+create_dev_project_overview(ranking, client, apps_usage)
 }
 \arguments{
 \item{ranking}{Developer ranking. See \link{create_dev_ranking}. Useful
@@ -13,8 +13,6 @@ to get developers sorted by decreasing number of projects in the shiny selectInp
 \item{client}{RSC client. See \link{create_rsc_client}.}
 
 \item{apps_usage}{First element returned by \link{create_app_ranking}.}
-
-\item{input}{Shiny input object.}
 }
 \value{
 A visNetwork htmlwidget with developer projects.

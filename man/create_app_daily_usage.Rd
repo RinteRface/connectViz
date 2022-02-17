@@ -4,12 +4,10 @@
 \alias{create_app_daily_usage}
 \title{Daily app usage chart}
 \usage{
-create_app_daily_usage(apps_usage, input)
+create_app_daily_usage(apps_usage)
 }
 \arguments{
 \item{apps_usage}{Second element returned by \link{create_app_ranking}.}
-
-\item{input}{Shiny input object.}
 }
 \value{
 A calendar chart displaying daily app usage.

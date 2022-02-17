@@ -66,19 +66,19 @@ create_app_ranking_table(apps_ranking)
 #### Daily app usage
 
 ```{r}
-create_app_daily_usage(apps_ranking[[2]], input)
+create_app_daily_usage(apps_ranking[[2]])
 ```
 
 #### Cumulated duration / user
 
 ```{r duration-plot}
-create_cumulated_duration_per_user(apps_ranking[[1]], input)
+create_cumulated_duration_per_user(apps_ranking[[1]])
 ```
 
 #### Number Hits / user
 
 ```{r sessions-plot}
-create_cumulated_hits_per_user(apps_ranking[[1]], input)
+create_cumulated_hits_per_user(apps_ranking[[1]])
 ```
 
 
@@ -89,13 +89,13 @@ create_cumulated_hits_per_user(apps_ranking[[1]], input)
 
 ```{r developers-ranking}
 developers_apps_ranking <- create_dev_ranking(rsc_users, rsc_content)
-create_dev_ranking_chart(developers_apps_ranking, input)
+create_dev_ranking_chart(developers_apps_ranking)
 ```
 
 #### Developer projects overview
 
 ```{r}
-create_dev_project_overview(developers_apps_ranking, rsc_client, apps_ranking[[1]], input)
+create_dev_project_overview(developers_apps_ranking, rsc_client, apps_ranking[[1]])
 ```
 
 
@@ -131,21 +131,3 @@ sort_content_by_rversion(rsc_content) %>% create_pie_chart("r_version")
 ```{r content-type}
 sort_content_by_appmode(rsc_content) %>% create_pie_chart("app_mode")
 ```
-
-<!--
-#### Running user
-
-What is the preferred running user?
-
-```{r running-user}
-rsc_content %>% 
-group_by(run_as_current_user) %>% 
-summarize(n = n()) %>% 
-mutate(Percentage = round(n / sum(n) * 100)) %>% 
-e_charts(run_as_current_user) %>% 
-e_pie(Percentage, radius = c("50%", "70%")) %>% 
-e_title("Run as current user? (%)") %>% 
-e_tooltip()
-```
-
--->

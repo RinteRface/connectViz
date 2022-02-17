@@ -4,19 +4,18 @@
 #' See \url{https://echarts4r.john-coene.com/articles/chart_types.html#calendar-1}.
 #'.
 #' @param apps_usage Second element returned by \link{create_app_ranking}.
-#' @param input Shiny input object.
 #' @return A calendar chart displaying daily app usage.
 #' @export
 #' @importFrom shiny selectInput reactive
 #' @import echarts4r
 #' @importFrom rlang .data
-create_app_daily_usage <- function(apps_usage, input) {
+create_app_daily_usage <- function(apps_usage) {
   selectInput("selected_app", "Select an application", apps_usage$app_name)
 
   # Join all data
   targeted_rsc_apps_usage <- reactive({
     apps_usage %>%
-      dplyr::filter(.data$app_name == .data[[input$selected_app]])
+      dplyr::filter(.data$app_name == .env$input$selected_app)
   })
 
   # Calendar chart
@@ -49,17 +48,16 @@ create_app_daily_usage <- function(apps_usage, input) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
-#' @param input Shiny input object.
 #'
 #' @return An echarts4r barchart.
 #' @export
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
-create_cumulated_duration_per_user <- function(apps_usage, input) {
+create_cumulated_duration_per_user <- function(apps_usage) {
   renderEcharts4r({
     apps_usage %>%
-      filter(.data$app_name == .data[[input$selected_app]]) %>%
+      filter(.data$app_name == .env$input$selected_app) %>%
       mutate(duration = as.numeric(.data$duration)) %>%
       group_by(.data$username) %>%
       summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
@@ -78,17 +76,16 @@ create_cumulated_duration_per_user <- function(apps_usage, input) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
-#' @param input Shiny input object.
 #'
 #' @return An echarts4r barchart.
 #' @export
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
-create_cumulated_hits_per_user <- function(apps_usage, input) {
+create_cumulated_hits_per_user <- function(apps_usage) {
   renderEcharts4r({
     apps_usage %>%
-      filter(.data$app_name == .data[[input$selected_app]]) %>%
+      filter(.data$app_name == .env$input$selected_app) %>%
       group_by(.data$username) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%
@@ -108,7 +105,6 @@ create_cumulated_hits_per_user <- function(apps_usage, input) {
 #' See \link{create_dev_ranking}.
 #'
 #' @param ranking Obtained after calling \link{create_dev_ranking}.
-#' @param input Shiny input object.
 #'
 #' @return An echarts4r bar chart.
 #' @export
@@ -116,7 +112,7 @@ create_cumulated_hits_per_user <- function(apps_usage, input) {
 #' @import dplyr
 #' @importFrom rlang .data
 #' @importFrom shiny numericInput
-create_dev_ranking_chart <- function(ranking, input) {
+create_dev_ranking_chart <- function(ranking) {
   numericInput(
     "apps_threshold",
     "N app threshold",
@@ -127,7 +123,7 @@ create_dev_ranking_chart <- function(ranking, input) {
 
   renderEcharts4r({
     ranking %>%
-      filter(.data$n_apps > .data[[input$apps_threshold]]) %>%
+      filter(.data$n_apps > .env$input$apps_threshold) %>%
       arrange(.data$n_apps) %>%
       e_charts(.data$username) %>%
       e_bar(.data$n_apps) %>%
@@ -145,13 +141,12 @@ create_dev_ranking_chart <- function(ranking, input) {
 #' to get developers sorted by decreasing number of projects in the shiny selectInput.
 #' @param client RSC client. See \link{create_rsc_client}.
 #' @param apps_usage First element returned by \link{create_app_ranking}.
-#' @param input Shiny input object.
 #' @return A visNetwork htmlwidget with developer projects.
 #' @export
 #' @importFrom shiny selectInput
 #' @import visNetwork
 #' @importFrom rlang .data
-create_dev_project_overview <- function(ranking, client, apps_usage, input) {
+create_dev_project_overview <- function(ranking, client, apps_usage) {
   selectInput(
     "app_developer",
     "Select a developer",
@@ -161,7 +156,7 @@ create_dev_project_overview <- function(ranking, client, apps_usage, input) {
 
   renderVisNetwork({
     apps <- get_rsc_developer_apps_list(
-      connectapi::user_guid_from_username(client, .data[[input$app_developer]]),
+      connectapi::user_guid_from_username(client, .env$input$app_developer),
       apps_usage
     )
 
@@ -174,7 +169,7 @@ create_dev_project_overview <- function(ranking, client, apps_usage, input) {
       id = seq_len(nrow(apps) + 1),
       group = groups,
       label = c(
-        .data[[input$app_developer]],
+        .env$input$app_developer,
         paste0(
           apps$app_name,
           " (n view: ",
