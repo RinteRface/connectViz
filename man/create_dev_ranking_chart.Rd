@@ -9,7 +9,8 @@ create_dev_ranking_chart(ranking, threshold)
 \arguments{
 \item{ranking}{Obtained after calling \link{create_dev_ranking}.}
 
-\item{threshold}{Minimum number of app threshold. You'll need a numericInput}
+\item{threshold}{Minimum number of app threshold. You'll need a numericInput
+wrapped by \link[shiny]{reactive}.}
 }
 \value{
 An echarts4r bar chart.

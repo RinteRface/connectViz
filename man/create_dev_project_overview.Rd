@@ -14,7 +14,7 @@ to get developers sorted by decreasing number of projects in the shiny selectInp
 
 \item{apps_usage}{First element returned by \link{create_app_ranking}.}
 
-\item{selected_dev}{Developer to select. You'll need a selectInput.}
+\item{selected_dev}{Developer to select. You'll need a selectInput wrapped by \link[shiny]{reactive}.}
 }
 \value{
 A visNetwork htmlwidget with developer projects.

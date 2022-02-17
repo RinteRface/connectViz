@@ -9,7 +9,8 @@ create_app_daily_usage(apps_usage, selected_app)
 \arguments{
 \item{apps_usage}{Second element returned by \link{create_app_ranking}.}
 
-\item{selected_app}{Selected app name (string). You'll need a selectInput for instance.}
+\item{selected_app}{Selected app name (string). You'll need a selectInput for instance.
+wrapped by \link[shiny]{reactive}.}
 }
 \value{
 A calendar chart displaying daily app usage.

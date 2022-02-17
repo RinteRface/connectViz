@@ -68,19 +68,19 @@ create_app_ranking_table(apps_ranking)
 
 ```{r}
 selectInput("selected_app", "Select an application", apps_usage$app_name)
-create_app_daily_usage(apps_ranking[[2]], input$selected_app)
+create_app_daily_usage(apps_ranking[[2]], reactive(input$selected_app))
 ```
 
 #### Cumulated duration / user
 
 ```{r duration-plot}
-create_cumulated_duration_per_user(apps_ranking[[1]], input$selected_app)
+create_cumulated_duration_per_user(apps_ranking[[1]], reactive(input$selected_app))
 ```
 
 #### Number Hits / user
 
 ```{r sessions-plot}
-create_cumulated_hits_per_user(apps_ranking[[1]], input$selected_app)
+create_cumulated_hits_per_user(apps_ranking[[1]], reactive(input$selected_app))
 ```
 
 
@@ -98,7 +98,7 @@ numericInput(
     min = 1,
     max = developers_apps_ranking %>% pull(n_apps) %>% max()
   )
-create_dev_ranking_chart(developers_apps_ranking, input$apps_threshold)
+create_dev_ranking_chart(developers_apps_ranking, reactive(input$apps_threshold))
 ```
 
 #### Developer projects overview
@@ -110,7 +110,7 @@ selectInput(
     developers_apps_ranking$username
   )
 
-create_dev_project_overview(developers_apps_ranking, rsc_client, apps_ranking[[1]], input$app_developer)
+create_dev_project_overview(developers_apps_ranking, rsc_client, apps_ranking[[1]], reactive(input$app_developer))
 ```
 
 

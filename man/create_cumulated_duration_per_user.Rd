@@ -9,7 +9,8 @@ create_cumulated_duration_per_user(apps_usage, selected_app)
 \arguments{
 \item{apps_usage}{First element returned by \link{create_app_ranking}.}
 
-\item{selected_app}{Selected app name (string). You'll need a selectInput for instance.}
+\item{selected_app}{Selected app name (string). You'll need a selectInput for instance
+wrapped by \link[shiny]{reactive}.}
 }
 \value{
 An echarts4r barchart.

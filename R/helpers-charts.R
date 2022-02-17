@@ -5,6 +5,7 @@
 #'.
 #' @param apps_usage Second element returned by \link{create_app_ranking}.
 #' @param selected_app Selected app name (string). You'll need a selectInput for instance.
+#' wrapped by \link[shiny]{reactive}.
 #' @return A calendar chart displaying daily app usage.
 #' @export
 #' @importFrom shiny reactive
@@ -17,7 +18,7 @@ create_app_daily_usage <- function(apps_usage, selected_app) {
   # Join all data
   targeted_rsc_apps_usage <- reactive({
     apps_usage %>%
-      dplyr::filter(.data$app_name == !!selected_app)
+      dplyr::filter(.data$app_name == !!selected_app())
   })
 
   # Calendar chart
@@ -50,7 +51,8 @@ create_app_daily_usage <- function(apps_usage, selected_app) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
-#' @param selected_app Selected app name (string). You'll need a selectInput for instance.
+#' @param selected_app Selected app name (string). You'll need a selectInput for instance
+#' wrapped by \link[shiny]{reactive}.
 #'
 #' @return An echarts4r barchart.
 #' @export
@@ -63,7 +65,7 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 
   renderEcharts4r({
     apps_usage %>%
-      filter(.data$app_name == !!selected_app) %>%
+      filter(.data$app_name == !!selected_app()) %>%
       mutate(duration = as.numeric(.data$duration)) %>%
       group_by(.data$username) %>%
       summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
@@ -82,7 +84,8 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
-#' @param selected_app Selected app name (string). You'll need a selectInput for instance.
+#' @param selected_app Selected app name (string). You'll need a selectInput for instance
+#' wrapped by \link[shiny]{reactive}.
 #'
 #' @return An echarts4r barchart.
 #' @export
@@ -95,7 +98,7 @@ create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
 
   renderEcharts4r({
     apps_usage %>%
-      filter(.data$app_name == !!selected_app) %>%
+      filter(.data$app_name == !!selected_app()) %>%
       group_by(.data$username) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%
@@ -116,6 +119,7 @@ create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
 #'
 #' @param ranking Obtained after calling \link{create_dev_ranking}.
 #' @param threshold Minimum number of app threshold. You'll need a numericInput
+#' wrapped by \link[shiny]{reactive}.
 #'
 #' @return An echarts4r bar chart.
 #' @export
@@ -128,7 +132,7 @@ create_dev_ranking_chart <- function(ranking, threshold) {
 
   renderEcharts4r({
     ranking %>%
-      filter(.data$n_apps > !!threshold) %>%
+      filter(.data$n_apps > !!threshold()) %>%
       arrange(.data$n_apps) %>%
       e_charts(username) %>%
       e_bar(n_apps) %>%
@@ -146,7 +150,7 @@ create_dev_ranking_chart <- function(ranking, threshold) {
 #' to get developers sorted by decreasing number of projects in the shiny selectInput.
 #' @param client RSC client. See \link{create_rsc_client}.
 #' @param apps_usage First element returned by \link{create_app_ranking}.
-#' @param selected_dev Developer to select. You'll need a selectInput.
+#' @param selected_dev Developer to select. You'll need a selectInput wrapped by \link[shiny]{reactive}.
 #' @return A visNetwork htmlwidget with developer projects.
 #' @export
 #' @import visNetwork
@@ -154,7 +158,7 @@ create_dev_project_overview <- function(ranking, client, apps_usage, selected_de
 
   renderVisNetwork({
     apps <- get_rsc_developer_apps_list(
-      connectapi::user_guid_from_username(client, selected_dev),
+      connectapi::user_guid_from_username(client, selected_dev()),
       apps_usage
     )
 
