@@ -4,10 +4,12 @@
 \alias{create_pie_chart}
 \title{Create standard pie chart}
 \usage{
-create_pie_chart(data)
+create_pie_chart(data, x_axis)
 }
 \arguments{
 \item{data}{Get from \link{sort_users_by_role}.}
+
+\item{x_axis}{x variable.}
 }
 \value{
 A pie chart.

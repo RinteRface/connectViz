@@ -216,7 +216,7 @@ create_dev_project_overview <- function(ranking, client, apps_usage) {
 #' Pie chart with percentage data
 #'
 #' @param data Get from \link{sort_users_by_role}.
-#' @param x_axis
+#' @param x_axis x variable.
 #'
 #' @return A pie chart.
 #' @export
