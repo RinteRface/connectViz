@@ -4,12 +4,12 @@
 \alias{get_rsc_app_dates}
 \title{Extract app usage dates}
 \usage{
-get_rsc_app_dates(logs, app)
+get_rsc_app_dates(app, logs)
 }
 \arguments{
-\item{logs}{Given by RSC database.}
-
 \item{app}{app_name to filter.}
+
+\item{logs}{Given by RSC database.}
 }
 \value{
 A vector containing dates of usage for

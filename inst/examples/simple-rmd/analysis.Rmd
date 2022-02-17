@@ -10,7 +10,9 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-# RStudio Connect API
+library(connectapi) # Tested with 0.1.0.9031
+library(connectViz)
+library(dplyr)
 rsc_client <- create_rsc_client()
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 ```
@@ -19,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 # Get raw data from RSC database
 apps_usage <- rsc_client %>% get_usage_shiny(limit = Inf)
 rsc_content <- rsc_client %>% get_content()
-rsc_users <- get_users(rsc_client, limit = Inf)
+rsc_users <- rsc_client %>% get_users(limit = Inf)
 publishers <- rsc_users %>% filter(user_role == "publisher") 
 shiny_apps <- rsc_content %>% filter(app_mode == "shiny")
 

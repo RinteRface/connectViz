@@ -4,13 +4,13 @@
 \alias{get_rsc_developer_apps_list}
 \title{Get app list for each developer + usage}
 \usage{
-get_rsc_developer_apps_list(logs, developer)
+get_rsc_developer_apps_list(developer, logs)
 }
 \arguments{
-\item{logs}{RSC logs.}
-
 \item{developer}{Unique user id. Typically
 app_developer_id key.}
+
+\item{logs}{RSC logs.}
 }
 \value{
 Tibble containing app name + count

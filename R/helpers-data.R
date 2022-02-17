@@ -1,14 +1,14 @@
 #' Extract app usage dates
 #'
-#' @param logs Given by RSC database.
 #' @param app app_name to filter.
+#' @param logs Given by RSC database.
 #'
 #' @return A vector containing dates of usage for
 #' the given app.
 #' @import dplyr
 #' @export
 #' @importFrom rlang .data
-get_rsc_app_dates <- function(logs, app) {
+get_rsc_app_dates <- function(app, logs) {
   logs %>%
     filter(.data$app_name == !!app) %>%
     pull(.data$started)
@@ -73,17 +73,14 @@ get_rsc_apps_usage <- function(logs) {
 
 #' Get app count for each developer
 #'
-#' @param logs All data logs.
 #' @param developer Developer unique id.
+#' @param logs All data logs.
 #'
 #' @return A number with all apps
 #' @import dplyr
 #' @export
 #' @importFrom rlang .data
-get_rsc_developer_apps_count <- function(
-  logs,
-  developer
-) {
+get_rsc_developer_apps_count <- function(developer, logs) {
   tmp <- logs %>%
     filter(.data$owner_guid == !!developer)
 
@@ -105,15 +102,15 @@ get_rsc_developer_apps_count <- function(
 
 #' Get app list for each developer + usage
 #'
-#' @param logs RSC logs.
 #' @param developer Unique user id. Typically
 #' app_developer_id key.
+#' @param logs RSC logs.
 #'
 #' @return Tibble containing app name + count
 #' @import dplyr
 #' @export
 #' @importFrom rlang .data
-get_rsc_developer_apps_list <- function(logs, developer) {
+get_rsc_developer_apps_list <- function(developer, logs) {
   logs %>%
     filter(.data$owner_guid == !!developer) %>%
     group_by(.data$app_name) %>%
