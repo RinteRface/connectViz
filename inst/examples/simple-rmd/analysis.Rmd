@@ -67,7 +67,7 @@ create_app_ranking_table(apps_ranking)
 #### Daily app usage
 
 ```{r}
-selectInput("selected_app", "Select an application", apps_usage$app_name)
+selectInput("selected_app", "Select an application", apps_ranking[[2]]$app_name)
 create_app_daily_usage(apps_ranking[[2]], reactive(input$selected_app))
 ```
 
