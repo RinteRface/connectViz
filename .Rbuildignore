@@ -1,0 +1,8 @@
+^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^LICENSE\.md$
+^connectViz\.Rproj$
+^\.Rproj\.user$
+^CODE_OF_CONDUCT\.md$
