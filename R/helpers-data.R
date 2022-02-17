@@ -239,7 +239,7 @@ create_dev_ranking <- function(users, content) {
       n_apps = map_int(
         .data$guid,
         get_rsc_developer_apps_count,
-        data = content
+        logs = content
       )
     ) %>%
     filter(.data$n_apps > 0) %>%
