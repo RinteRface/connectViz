@@ -4,10 +4,12 @@
 \alias{create_app_daily_usage}
 \title{Daily app usage chart}
 \usage{
-create_app_daily_usage(apps_usage)
+create_app_daily_usage(apps_usage, selected_app)
 }
 \arguments{
 \item{apps_usage}{Second element returned by \link{create_app_ranking}.}
+
+\item{selected_app}{Selected app name (string). You'll need a selectInput for instance.}
 }
 \value{
 A calendar chart displaying daily app usage.

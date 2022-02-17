@@ -4,10 +4,12 @@
 \alias{create_cumulated_hits_per_user}
 \title{Create cumulated app hits/user}
 \usage{
-create_cumulated_hits_per_user(apps_usage)
+create_cumulated_hits_per_user(apps_usage, selected_app)
 }
 \arguments{
 \item{apps_usage}{First element returned by \link{create_app_ranking}.}
+
+\item{selected_app}{Selected app name (string). You'll need a selectInput for instance.}
 }
 \value{
 An echarts4r barchart.
