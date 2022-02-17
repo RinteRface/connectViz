@@ -216,14 +216,15 @@ create_dev_project_overview <- function(ranking, client, apps_usage) {
 #' Pie chart with percentage data
 #'
 #' @param data Get from \link{sort_users_by_role}.
+#' @param x_axis
 #'
 #' @return A pie chart.
 #' @export
 #' @import echarts4r
 #' @importFrom rlang .data
-create_pie_chart <- function(data) {
+create_pie_chart <- function(data, x_axis) {
   data %>%
-    e_charts(data[, 1]) %>%
+    e_charts(x_axis) %>%
     e_pie(.data$Percentage, radius = c("50%", "70%")) %>%
     e_title(paste("RSC", names(data)[[1]], "(%)")) %>%
     e_tooltip()

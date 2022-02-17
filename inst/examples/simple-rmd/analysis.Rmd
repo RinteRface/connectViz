@@ -106,7 +106,7 @@ create_dev_project_overview(developers_apps_ranking, rsc_client, apps_ranking[[1
 ```{r user-repartition}
 # I realized some users are not active (ie active_time is NA).
 # Maybe to remove from the viz in the future?
-sort_users_by_role(rsc_users) %>% create_pie_chart()
+sort_users_by_role(rsc_users) %>% create_pie_chart("user_role")
 ```
 
 #### Content access
@@ -114,7 +114,7 @@ sort_users_by_role(rsc_users) %>% create_pie_chart()
 How do people protect their content?
 
 ```{r content-access-type}
-sort_content_by_access(rsc_content) %>% create_pie_chart()
+sort_content_by_access(rsc_content) %>% create_pie_chart("access_type")
 ```
 
 
@@ -123,13 +123,13 @@ sort_content_by_access(rsc_content) %>% create_pie_chart()
 What are the R versions used?
 
 ```{r content-r-version}
-sort_content_by_rversion(rsc_content) %>% create_pie_chart()
+sort_content_by_rversion(rsc_content) %>% create_pie_chart("r_version")
 ```
 
 #### Content type
 
 ```{r content-type}
-sort_content_by_appmode(rsc_content) %>% create_pie_chart()
+sort_content_by_appmode(rsc_content) %>% create_pie_chart("app_mode")
 ```
 
 <!--
