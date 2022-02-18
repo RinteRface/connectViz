@@ -253,7 +253,7 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
       filter(.data$username == selected_user()) %>%
       mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
       group_by(.data$floored_started) %>%
-      summarize(n = n()) %>%
+      count(sort = TRUE) %>%
       select(Date = .data$floored_started, Freq = .data$n)
   })
 
