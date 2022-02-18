@@ -248,7 +248,7 @@ get_app_daily_usage <- function(apps_usage, selected_app) {
 get_user_daily_consumption <- function(content, users, apps, selected_user) {
   rsc_data_merged <- merge_rsc_data(content, users, apps)
 
-  res <- reactive({
+  reactive({
     rsc_data_merged[[3]] %>%
       filter(.data$username == selected_user()) %>%
       mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
@@ -256,8 +256,6 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
       count(sort = TRUE) %>%
       select(Date = .data$floored_started, Freq = .data$n)
   })
-
-  list(data = res, user = selected_user)
 }
 
 

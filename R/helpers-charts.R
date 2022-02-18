@@ -42,7 +42,7 @@ create_calendar_chart <- function(calendar_data, title) {
 #' @return A calendar chart displaying daily app usage.
 #' @export
 create_app_daily_usage_chart <- function(app_usage) {
-  create_calendar_chart(app_usage, unique(app_usage()$app_name))
+  create_calendar_chart(app_usage, "Overall app usage")
 }
 
 
@@ -57,7 +57,7 @@ create_app_daily_usage_chart <- function(app_usage) {
 create_user_daily_consumption_chart <- function(usage) {
   create_calendar_chart(
     usage[[1]],
-    sprintf("%s overall consumption", usage[[2]]())
+    "Overall consumption"
   )
 }
 
