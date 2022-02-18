@@ -226,7 +226,7 @@ merge_rsc_data <- function(content, users, apps) {
 get_app_daily_usage <- function(apps_usage, selected_app) {
   reactive({
     apps_usage %>%
-      filter(.data$app_name == !!selected_app()) %>%
+      filter(.data$app_name == selected_app()) %>%
       select(.data$calendar_data) %>%
       tidyr::unnest(cols = c(.data$calendar_data))
   })
@@ -250,7 +250,7 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
 
   res <- reactive({
     rsc_data_merged[[3]] %>%
-      filter(.data$username == !!selected_user()) %>%
+      filter(.data$username == selected_user()) %>%
       mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
       group_by(.data$floored_started) %>%
       summarize(n = n()) %>%
@@ -312,7 +312,7 @@ create_apps_consumer_ranking <- function(apps, users, threshold) {
       group_by(.data$user_guid) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%
-      filter(n > !!threshold()) %>%
+      filter(n > threshold()) %>%
       left_join(users %>% mutate(user_guid = .data$guid), by = "user_guid") %>%
       select(.data$username, .data$n, .data$user_role) %>%
       tidyr::replace_na(list(username = "Unknown", user_role = "External"))
