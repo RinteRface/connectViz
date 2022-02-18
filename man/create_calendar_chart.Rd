@@ -4,16 +4,12 @@
 \alias{create_calendar_chart}
 \title{Generic calendar chart generator}
 \usage{
-create_calendar_chart(data, max, range, title)
+create_calendar_chart(calendar_data, title)
 }
 \arguments{
-\item{data}{Calendar chart data.}
-
-\item{max}{Maximum value.}
-
-\item{range}{Date range.}
-
 \item{title}{Chart title.}
+
+\item{data}{Calendar chart data.}
 }
 \value{
 An echarts4r calendar chart

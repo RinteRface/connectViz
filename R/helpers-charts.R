@@ -1,19 +1,21 @@
 #' Generic calendar chart generator
 #'
 #' @param data Calendar chart data.
-#' @param max Maximum value.
-#' @param range Date range.
 #' @param title Chart title.
 #'
 #' @return An echarts4r calendar chart
 #' @export
 #' @import echarts4r
-create_calendar_chart <- function(data, max, range, title) {
+create_calendar_chart <- function(calendar_data, title) {
 
   Date <- Freq <- NULL
 
   renderEcharts4r({
-    data() %>%
+    calendar_data <- calendar_data()
+    range <- c(min(calendar_data$Date), max(calendar_data$Date))
+    max <- max(calendar_data$Freq)
+
+    calendar_data %>%
       e_charts(Date, width = "1200px") %>%
       e_calendar(range = range) %>%
       e_effect_scatter(Freq, coord_system = "calendar") %>%
@@ -40,12 +42,7 @@ create_calendar_chart <- function(data, max, range, title) {
 #' @return A calendar chart displaying daily app usage.
 #' @export
 create_app_daily_usage_chart <- function(app_usage) {
-  create_calendar_chart(
-    app_usage,
-    max(app_usage$Freq),
-    c(min(app_usage$Date), max(app_usage$Date)),
-    unique(app_usage$app_name)
-  )
+  create_calendar_chart(app_usage, unique(app_usage$app_name))
 }
 
 
@@ -60,9 +57,7 @@ create_app_daily_usage_chart <- function(app_usage) {
 create_user_daily_consumption_chart <- function(usage) {
   create_calendar_chart(
     usage[[1]],
-    max(usage[[1]]$Freq),
-    c(min(usage[[1]]$Date), max(usage[[1]]$Date)),
-    sprintf("%s overall consumption", usage[[2]])
+    sprintf("%s overall consumption", usage[[2]]())
   )
 }
 
