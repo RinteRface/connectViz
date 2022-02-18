@@ -11,6 +11,7 @@ create_calendar_chart <- function(calendar_data, title) {
   Date <- Freq <- NULL
 
   renderEcharts4r({
+    req(nrow(calendar_data()) > 0)
     calendar_data <- calendar_data()
     range <- c(min(calendar_data$Date), max(calendar_data$Date))
     max <- max(calendar_data$Freq)

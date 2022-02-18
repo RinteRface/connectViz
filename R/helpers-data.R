@@ -249,12 +249,18 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
   rsc_data_merged <- merge_rsc_data(content, users, apps)
 
   reactive({
-    rsc_data_merged[[3]] %>%
-      filter(.data$username == selected_user()) %>%
-      mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
-      group_by(.data$floored_started) %>%
-      count(sort = TRUE) %>%
-      select(Date = .data$floored_started, Freq = .data$n)
+    tmp <- rsc_data_merged[[3]] %>%
+      filter(.data$username == selected_user())
+
+    if (nrow(tmp) > 0) {
+     tmp %>%
+        mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
+        group_by(.data$floored_started) %>%
+        count(sort = TRUE) %>%
+        select(Date = .data$floored_started, Freq = .data$n)
+    } else {
+      NULL
+    }
   })
 }
 
