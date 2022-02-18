@@ -15,5 +15,5 @@ Owner guid is the same returned in \link{process_rsc_user}.
 }
 \description{
 Select relevant information for RSC content data. See
-\link{create_app_ranking}.
+\link{merge_rsc_data}.
 }

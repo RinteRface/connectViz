@@ -1,49 +1,78 @@
+#' Generic calendar chart generator
+#'
+#' @param data Calendar chart data.
+#' @param max Maximum value.
+#' @param range Date range.
+#' @param title Chart title.
+#'
+#' @return An echarts4r calendar chart
+#' @export
+#' @import echarts4r
+create_calendar_chart <- function(data, max, range, title) {
+
+  Date <- Freq <- NULL
+
+  renderEcharts4r({
+    data %>%
+      e_charts(Date, width = "1200px") %>%
+      e_calendar(range = range) %>%
+      e_effect_scatter(Freq, coord_system = "calendar") %>%
+      e_visual_map(
+        max = max,
+        inRange = list(
+          color = c('#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695')
+        )
+      ) %>%
+      e_title(title) %>%
+      e_tooltip() %>%
+      e_legend(FALSE)
+  })
+}
+
+
+
 #' Daily app usage chart
 #'
 #' Leverages echarts4r.
 #' See \url{https://echarts4r.john-coene.com/articles/chart_types.html#calendar-1}.
 #'.
-#' @param apps_usage Second element returned by \link{create_app_ranking}.
-#' @param selected_app Selected app name (string). You'll need a selectInput for instance.
-#' wrapped by \link[shiny]{reactive}.
+#' @param app_usage Returned by \link{get_app_daily_usage}.
 #' @return A calendar chart displaying daily app usage.
 #' @export
-#' @importFrom shiny reactive
-#' @import echarts4r
-#' @importFrom rlang .data
-create_app_daily_usage <- function(apps_usage, selected_app) {
-
-  Date <- Freq <- NULL
-
-  # Join all data
-  targeted_rsc_apps_usage <- reactive({
-    apps_usage %>%
-      dplyr::filter(.data$app_name == !!selected_app())
-  })
-
-  # Calendar chart
-  renderEcharts4r({
-    tmp_app <- targeted_rsc_apps_usage()
-
-    calendar_data <- tmp_app[ , "calendar_data"] %>%
-      tidyr::unnest(cols = c(calendar_data))
-    max_usage <- max(calendar_data$Freq)
-    year_range <- c(min(calendar_data$Date), max(calendar_data$Date))
-
-    calendar_data %>%
-      e_charts(Date, width = "1200px") %>%
-      e_calendar(range = year_range) %>%
-      e_effect_scatter(Freq, coord_system = "calendar") %>%
-      e_visual_map(
-        max = max_usage,
-        inRange = list(
-          color = c('#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695')
-        )
-      ) %>%
-      e_title(tmp_app$app_name) %>%
-      e_tooltip()
-  })
+create_app_daily_usage_chart <- function(app_usage) {
+  create_calendar_chart(
+    app_usage,
+    max(app_usage$Freq),
+    c(min(app_usage$Date), max(app_usage$Date)),
+    app_usage$app_name
+  )
 }
+
+
+
+
+#' Daily app consumption for selected user
+#'
+#' @param usage Get from \link{get_user_daily_consumption}.
+#'
+#' @return An echarts4r calendar chart
+#' @export
+create_user_daily_consumption_chart <- function(usage) {
+
+  data <- usage[[1]]
+  selected_user <- usage[[2]]
+
+  max_usage <- max(data$Freq)
+  year_range <- c(min(data$Date), max(data$Date))
+
+  create_calendar_chart(
+    data,
+    max_usage,
+    year_range,
+    sprintf("%s overall consumption", selected_user)
+  )
+}
+
 
 
 #' Create cumulated app duration/user
@@ -210,6 +239,26 @@ create_dev_project_overview <- function(ranking, client, apps_usage, selected_de
   })
 }
 
+
+
+#' Create apps consumer ranking bar chart
+#'
+#' @param ranking Data obtained from \link{create_apps_consumer_ranking}.
+#'
+#' @return A bar chart with consumer sorted by descending number of total views.
+#' @export
+create_apps_consumer_ranking_chart <- function(ranking) {
+
+  username <- NULL
+
+  ranking %>%
+    e_charts(username) %>%
+    e_bar(n) %>%
+    e_flip_coords() %>%
+    e_axis_labels(x = "Number of hits", y = "End user") %>%
+    e_tooltip() %>%
+    e_legend(FALSE)
+}
 
 
 

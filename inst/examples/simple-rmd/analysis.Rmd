@@ -68,7 +68,8 @@ create_app_ranking_table(apps_ranking)
 
 ```{r}
 selectInput("selected_app", "Select an application", apps_ranking[[2]]$app_name)
-create_app_daily_usage(apps_ranking[[2]], reactive(input$selected_app))
+daily_app_usage <- get_app_daily_usage(apps_ranking[[2]], reactive(input$selected_app))
+create_app_daily_usage_chart(daily_app_usage)
 ```
 
 #### Cumulated duration / user
@@ -83,6 +84,29 @@ create_cumulated_duration_per_user(apps_ranking[[1]], reactive(input$selected_ap
 create_cumulated_hits_per_user(apps_ranking[[1]], reactive(input$selected_app))
 ```
 
+### Consumer data
+
+
+#### Consumer ranking
+```{r consumer-session-ranking}
+numericInput(
+  "views_threshold",
+  "N view threshold",
+  100,
+  min = 0
+)
+consumer_ranking <- create_apps_consumer_ranking(apps_usage, rsc_users, reactive(input$views_threshold))
+create_apps_consumer_ranking_chart(consumer_ranking)
+```
+
+#### Daily app consumption
+
+```{r daily-app-consumption-per-user}
+selectInput("selected_user", "Select an application", rsc_users$username)
+daily_consumption <- get_user_daily_consumption(rsc_content, rsc_users, apps_usage, reactive(input$selected_user))
+create_user_daily_consumption_chart(daily_consumption)
+```
+
 
 ### Developers data
 
@@ -92,12 +116,12 @@ create_cumulated_hits_per_user(apps_ranking[[1]], reactive(input$selected_app))
 ```{r developers-ranking}
 developers_apps_ranking <- create_dev_ranking(rsc_users, rsc_content)
 numericInput(
-    "apps_threshold",
-    "N app threshold",
-    5,
-    min = 1,
-    max = developers_apps_ranking %>% pull(n_apps) %>% max()
-  )
+  "apps_threshold",
+  "N app threshold",
+  5,
+  min = 1,
+  max = developers_apps_ranking %>% pull(n_apps) %>% max()
+)
 create_dev_ranking_chart(developers_apps_ranking, reactive(input$apps_threshold))
 ```
 
@@ -105,10 +129,10 @@ create_dev_ranking_chart(developers_apps_ranking, reactive(input$apps_threshold)
 
 ```{r}
 selectInput(
-    "app_developer",
-    "Select a developer",
-    developers_apps_ranking$username
-  )
+  "app_developer",
+  "Select a developer",
+  developers_apps_ranking$username
+)
 
 create_dev_project_overview(developers_apps_ranking, rsc_client, apps_ranking[[1]], reactive(input$app_developer))
 ```

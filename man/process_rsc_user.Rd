@@ -14,5 +14,5 @@ A 2 columns tibble with user guid and username.
 }
 \description{
 Select relevant information for RSC users data. See
-\link{create_app_ranking}.
+\link{merge_rsc_data}.
 }

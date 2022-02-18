@@ -137,7 +137,7 @@ get_max_rsc_apps_usage <- function(logs) {
 #' Process RSC user
 #'
 #' Select relevant information for RSC users data. See
-#' \link{create_app_ranking}.
+#' \link{merge_rsc_data}.
 #'
 #' @param users Get from \link[connectapi]{get_users}.
 #'
@@ -155,7 +155,7 @@ process_rsc_user <- function(users) {
 #' Process RSC content
 #'
 #' Select relevant information for RSC content data. See
-#' \link{create_app_ranking}.
+#' \link{merge_rsc_data}.
 #'
 #' @param content Get from \link[connectapi]{get_content}.
 #'
@@ -175,20 +175,20 @@ process_rsc_content <- function(content) {
 }
 
 
-#' Process app data for ranking table
+#' Merge RStudio Connect data together
 #'
-#' See \link{create_app_ranking_table}.
+#' See \link{create_app_ranking}.
 #'
 #' @param content Get from \link[connectapi]{get_content}.
 #' @param users Get from \link[connectapi]{get_users}.
 #' @param apps Get from \link[connectapi]{get_usage_shiny}.
 #'
-#' @return A list containing: `[[1]]` merged data between app usage and users data.
-#' `[[2]]`: data to be digested by \link{create_app_ranking_table}.
+#' @return A list of 3 tibbles. `[[1]]`: light RSC content data (less columns);
+#' `[[2]]`: light RSC users data (less columns); `[[3]]`: merged apps_usage data.
 #' @export
 #' @import dplyr
 #' @importFrom rlang .data
-create_app_ranking <- function(content, users, apps) {
+merge_rsc_data <- function(content, users, apps) {
   rsc_content_light <- process_rsc_content(content)
   rsc_users_light <- process_rsc_user(users)
 
@@ -199,24 +199,116 @@ create_app_ranking <- function(content, users, apps) {
     left_join(rsc_users_light, by = "user_guid") %>%
     mutate(duration = .data$ended - .data$started) %>%
     select(-.data$content_guid, -.data$user_guid, -.data$data_version) %>%
-    filter(!is.na(.data$app_name))
+    filter(!is.na(.data$app_name)) %>%
+    tidyr::replace_na(list(user_guid = "Unknown"))
 
-  # Some users are not logged and they appear as NAs. Replace
-  # By unknown to avoid to mess other results.
-  apps_usage_merged$username <- apps_usage_merged$username %>%
-    tidyr::replace_na("Unknown")
+  list(
+    rsc_content_light = rsc_content_light,
+    rsc_users_light = rsc_users_light,
+    apps_usage_merged = apps_usage_merged
+  )
+}
 
-  processed_rsc_apps_usage <- apps_usage_merged %>%
+
+
+#' Daily app usage
+#'
+#' Used by \link{create_app_daily_usage_chart}
+#'.
+#' @param apps_usage Second element returned by \link{create_app_ranking}.
+#' @param selected_app Selected app name (string). You'll need a selectInput for instance.
+#' wrapped by \link[shiny]{reactive}.
+#' @return Calendar data for daily app usage.
+#' @export
+#' @importFrom shiny reactive
+#' @import dplyr
+#' @importFrom rlang .data
+get_app_daily_usage <- function(apps_usage, selected_app) {
+  apps_usage %>%
+    filter(.data$app_name == selected_app()) %>%
+    select(.data$calendar_data) %>%
+    tidyr::unnest(cols = c(.data$calendar_data))
+}
+
+
+
+#' Get daily shiny app usage for a given user
+#'
+#' @inheritParams merge_rsc_data
+#' @param selected_user User to select.
+#' You'll need a selectInput wrapped by \link[shiny]{reactive}.
+#'
+#' @return 2 columns tibble containing daily app consuption for given user.
+#' @export
+#' @import dplyr
+#' @importFrom rlang .data
+get_user_daily_consumption <- function(content, users, apps, selected_user) {
+  rsc_data_merged <- merge_rsc_data(content, users, apps)
+
+  res <- rsc_data_merged[[3]] %>%
+    filter(.data$username == selected_user()) %>%
+    mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
+    group_by(.data$floored_started) %>%
+    summarize(n = n()) %>%
+    select(Date = .data$floored_started, Freq = .data$n)
+
+  list(data = res, user = selected_user())
+}
+
+
+#' Process app data for ranking table
+#'
+#' See \link{create_app_ranking_table}.
+#'
+#' @inheritParams merge_rsc_data
+#'
+#' @return A list containing: `[[1]]` merged data between app usage and users data.
+#' `[[2]]`: data to be digested by \link{create_app_ranking_table}.
+#' @export
+#' @import dplyr
+#' @importFrom rlang .data
+create_app_ranking <- function(content, users, apps) {
+
+  rsc_data_merged <- merge_rsc_data(content, users, apps)
+
+  processed_rsc_apps_usage <- rsc_data_merged[[3]] %>%
     get_rsc_apps_usage() %>%
     left_join(
-      rsc_content_light %>%
+      rsc_data_merged[[1]] %>%
         mutate(user_guid = .data$owner_guid),
       by = "app_name"
     ) %>%
-    left_join(rsc_users_light, by = "user_guid") %>%
+    left_join(rsc_data_merged[[2]], by = "user_guid") %>%
     select(-contains("_guid"))
 
-  list(apps_usage_merged, processed_rsc_apps_usage)
+  list(rsc_data_merged[[3]], processed_rsc_apps_usage)
+}
+
+
+
+#' Create Shiny apps consumer ranking
+#'
+#' Sort consumers by number of views.
+#'
+#' @param apps Get from \link[connectapi]{get_usage_shiny}.
+#' @param users Get from \link[connectapi]{get_users}.
+#' @param threshold Minimum number of views threshold. You'll need a numericInput
+#' wrapped by \link[shiny]{reactive}.
+#'
+#' @return A 3 columns tibble with apps consumer sorted by number of view. The role
+#' columns allows further analysis.
+#' @export
+#' @import dplyr
+#' @importFrom rlang .data
+create_apps_consumer_ranking <- function(apps, users, threshold) {
+  apps %>%
+    group_by(.data$user_guid) %>%
+    summarise(n = n()) %>% # prefer summarize over sort to remove grouping
+    arrange(n) %>%
+    filter(n > threshold()) %>%
+    left_join(users %>% mutate(user_guid = .data$guid), by = "user_guid") %>%
+    select(.data$username, .data$n, .data$user_role) %>%
+    tidyr::replace_na(list(username = "Unknown", user_role = "External"))
 }
 
 
