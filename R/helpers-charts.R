@@ -259,7 +259,6 @@ create_apps_consumer_ranking_chart <- function(ranking) {
       e_tooltip() %>%
       e_legend(FALSE)
   })
-  r
 }
 
 
