@@ -250,14 +250,16 @@ create_dev_project_overview <- function(ranking, client, apps_usage, selected_de
 create_apps_consumer_ranking_chart <- function(ranking) {
 
   username <- NULL
-
-  ranking %>%
-    e_charts(username) %>%
-    e_bar(n) %>%
-    e_flip_coords() %>%
-    e_axis_labels(x = "Number of hits", y = "End user") %>%
-    e_tooltip() %>%
-    e_legend(FALSE)
+  renderEcharts4r({
+    ranking %>%
+      e_charts(username) %>%
+      e_bar(n) %>%
+      e_flip_coords() %>%
+      e_axis_labels(x = "Number of hits", y = "End user") %>%
+      e_tooltip() %>%
+      e_legend(FALSE)
+  })
+  r
 }
 
 
