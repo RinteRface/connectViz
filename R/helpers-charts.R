@@ -55,10 +55,7 @@ create_app_daily_usage_chart <- function(app_usage) {
 #' @return An echarts4r calendar chart
 #' @export
 create_user_daily_consumption_chart <- function(usage) {
-  create_calendar_chart(
-    usage[[1]],
-    "Overall consumption"
-  )
+  create_calendar_chart(usage[[1]],"Overall consumption")
 }
 
 
