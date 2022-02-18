@@ -44,7 +44,7 @@ create_app_daily_usage_chart <- function(app_usage) {
     app_usage,
     max(app_usage$Freq),
     c(min(app_usage$Date), max(app_usage$Date)),
-    app_usage$app_name
+    unique(app_usage$app_name)
   )
 }
 
@@ -92,6 +92,7 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
       group_by(.data$username) %>%
       summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
       arrange(.data$cum_duration) %>%
+      tidyr::replace_na(list(username = "Unknown")) %>%
       e_charts(username) %>%
       e_bar(cum_duration) %>%
       e_flip_coords() %>%
@@ -124,6 +125,7 @@ create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
       group_by(.data$username) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%
+      tidyr::replace_na(list(username = "Unknown")) %>%
       e_charts(username) %>%
       e_bar(n) %>%
       e_flip_coords() %>%
@@ -154,7 +156,7 @@ create_dev_ranking_chart <- function(ranking, threshold) {
 
   renderEcharts4r({
     ranking %>%
-      filter(.data$n_apps > !!threshold()) %>%
+      filter(.data$n_apps > threshold()) %>%
       arrange(.data$n_apps) %>%
       e_charts(username) %>%
       e_bar(n_apps) %>%
