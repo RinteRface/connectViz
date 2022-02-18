@@ -224,10 +224,12 @@ merge_rsc_data <- function(content, users, apps) {
 #' @import dplyr
 #' @importFrom rlang .data
 get_app_daily_usage <- function(apps_usage, selected_app) {
-  apps_usage %>%
-    filter(.data$app_name == selected_app()) %>%
-    select(.data$calendar_data) %>%
-    tidyr::unnest(cols = c(.data$calendar_data))
+  reactive({
+    apps_usage %>%
+      filter(.data$app_name == selected_app()) %>%
+      select(.data$calendar_data) %>%
+      tidyr::unnest(cols = c(.data$calendar_data))
+  })
 }
 
 
@@ -242,15 +244,18 @@ get_app_daily_usage <- function(apps_usage, selected_app) {
 #' @export
 #' @import dplyr
 #' @importFrom rlang .data
+#' @importFrom shiny reactive
 get_user_daily_consumption <- function(content, users, apps, selected_user) {
   rsc_data_merged <- merge_rsc_data(content, users, apps)
 
-  res <- rsc_data_merged[[3]] %>%
-    filter(.data$username == selected_user()) %>%
-    mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
-    group_by(.data$floored_started) %>%
-    summarize(n = n()) %>%
-    select(Date = .data$floored_started, Freq = .data$n)
+  res <- reactive({
+    rsc_data_merged[[3]] %>%
+      filter(.data$username == selected_user()) %>%
+      mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
+      group_by(.data$floored_started) %>%
+      summarize(n = n()) %>%
+      select(Date = .data$floored_started, Freq = .data$n)
+  })
 
   list(data = res, user = selected_user())
 }
@@ -300,15 +305,18 @@ create_app_ranking <- function(content, users, apps) {
 #' @export
 #' @import dplyr
 #' @importFrom rlang .data
+#' @importFrom shiny reactive
 create_apps_consumer_ranking <- function(apps, users, threshold) {
-  apps %>%
-    group_by(.data$user_guid) %>%
-    summarise(n = n()) %>% # prefer summarize over sort to remove grouping
-    arrange(n) %>%
-    filter(n > threshold()) %>%
-    left_join(users %>% mutate(user_guid = .data$guid), by = "user_guid") %>%
-    select(.data$username, .data$n, .data$user_role) %>%
-    tidyr::replace_na(list(username = "Unknown", user_role = "External"))
+  reactive({
+    apps %>%
+      group_by(.data$user_guid) %>%
+      summarise(n = n()) %>% # prefer summarize over sort to remove grouping
+      arrange(n) %>%
+      filter(n > threshold()) %>%
+      left_join(users %>% mutate(user_guid = .data$guid), by = "user_guid") %>%
+      select(.data$username, .data$n, .data$user_role) %>%
+      tidyr::replace_na(list(username = "Unknown", user_role = "External"))
+  })
 }
 
 
