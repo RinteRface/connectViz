@@ -58,18 +58,11 @@ create_app_daily_usage_chart <- function(app_usage) {
 #' @return An echarts4r calendar chart
 #' @export
 create_user_daily_consumption_chart <- function(usage) {
-
-  data <- usage[[1]]
-  selected_user <- usage[[2]]
-
-  max_usage <- max(data$Freq)
-  year_range <- c(min(data$Date), max(data$Date))
-
   create_calendar_chart(
-    data,
-    max_usage,
-    year_range,
-    sprintf("%s overall consumption", selected_user)
+    usage[[1]],
+    max(usage[[1]]$Freq),
+    c(min(usage[[1]]$Date), max(usage[[1]]$Date)),
+    sprintf("%s overall consumption", usage[[2]])
   )
 }
 
