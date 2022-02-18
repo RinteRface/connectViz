@@ -59,10 +59,10 @@ create_app_daily_usage_chart <- function(app_usage) {
 #' @export
 create_user_daily_consumption_chart <- function(usage) {
   create_calendar_chart(
-    usage[[1]],
-    max(usage[[1]]$Freq),
-    c(min(usage[[1]]$Date), max(usage[[1]]$Date)),
-    sprintf("%s overall consumption", usage[[2]])
+    usage[[1]](),
+    max(usage[[1]]()$Freq),
+    c(min(usage[[1]]()$Date), max(usage[[1]]()$Date)),
+    sprintf("%s overall consumption", usage[[2]]())
   )
 }
 
