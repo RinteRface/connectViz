@@ -13,7 +13,7 @@ create_calendar_chart <- function(data, max, range, title) {
   Date <- Freq <- NULL
 
   renderEcharts4r({
-    data %>%
+    data() %>%
       e_charts(Date, width = "1200px") %>%
       e_calendar(range = range) %>%
       e_effect_scatter(Freq, coord_system = "calendar") %>%
@@ -59,10 +59,10 @@ create_app_daily_usage_chart <- function(app_usage) {
 #' @export
 create_user_daily_consumption_chart <- function(usage) {
   create_calendar_chart(
-    usage[[1]](),
-    max(usage[[1]]()$Freq),
-    c(min(usage[[1]]()$Date), max(usage[[1]]()$Date)),
-    sprintf("%s overall consumption", usage[[2]]())
+    usage[[1]],
+    max(usage[[1]]$Freq),
+    c(min(usage[[1]]$Date), max(usage[[1]]$Date)),
+    sprintf("%s overall consumption", usage[[2]])
   )
 }
 
@@ -246,7 +246,7 @@ create_apps_consumer_ranking_chart <- function(ranking) {
 
   username <- NULL
   renderEcharts4r({
-    ranking %>%
+    ranking() %>%
       e_charts(username) %>%
       e_bar(n) %>%
       e_flip_coords() %>%

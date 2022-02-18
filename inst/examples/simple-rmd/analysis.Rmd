@@ -69,7 +69,7 @@ create_app_ranking_table(apps_ranking)
 ```{r}
 selectInput("selected_app", "Select an application", apps_ranking[[2]]$app_name)
 daily_app_usage <- get_app_daily_usage(apps_ranking[[2]], reactive(input$selected_app))
-create_app_daily_usage_chart(daily_app_usage())
+create_app_daily_usage_chart(daily_app_usage)
 ```
 
 #### Cumulated duration / user
@@ -96,7 +96,7 @@ numericInput(
   min = 0
 )
 consumer_ranking <- create_apps_consumer_ranking(apps_usage, rsc_users, reactive(input$views_threshold))
-create_apps_consumer_ranking_chart(consumer_ranking())
+create_apps_consumer_ranking_chart(consumer_ranking)
 ```
 
 #### Daily app consumption
