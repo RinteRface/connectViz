@@ -257,7 +257,7 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
       select(Date = .data$floored_started, Freq = .data$n)
   })
 
-  list(data = res, user = selected_user())
+  list(data = res, user = selected_user)
 }
 
 
