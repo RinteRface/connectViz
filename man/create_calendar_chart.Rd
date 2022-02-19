@@ -7,9 +7,9 @@
 create_calendar_chart(calendar_data, title)
 }
 \arguments{
-\item{title}{Chart title.}
+\item{calendar_data}{Calendar chart data.}
 
-\item{data}{Calendar chart data.}
+\item{title}{Chart title.}
 }
 \value{
 An echarts4r calendar chart

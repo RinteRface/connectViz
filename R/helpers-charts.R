@@ -1,17 +1,19 @@
 #' Generic calendar chart generator
 #'
-#' @param data Calendar chart data.
+#' @param calendar_data Calendar chart data.
 #' @param title Chart title.
 #'
 #' @return An echarts4r calendar chart
 #' @export
 #' @import echarts4r
+#' @importFrom shiny validate need
 create_calendar_chart <- function(calendar_data, title) {
 
   Date <- Freq <- NULL
 
   renderEcharts4r({
-    req(nrow(calendar_data()) > 0)
+    validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
+
     calendar_data <- calendar_data()
     range <- c(min(calendar_data$Date), max(calendar_data$Date))
     max <- max(calendar_data$Freq)
