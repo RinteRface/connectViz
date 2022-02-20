@@ -189,6 +189,11 @@ process_rsc_content <- function(content) {
 #' @import dplyr
 #' @importFrom rlang .data
 merge_rsc_data <- function(content, users, apps) {
+
+  if (nrow(apps) == 0) {
+    stop("No data usage found. Please contact your RStudio Connect admin.")
+  }
+
   rsc_content_light <- process_rsc_content(content)
   rsc_users_light <- process_rsc_user(users)
 
