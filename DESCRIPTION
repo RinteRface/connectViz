@@ -19,7 +19,7 @@ BugReports: https://github.com/RinteRface/connectViz/issues
 Imports: 
     magrittr,
     lubridate,
-    dplyr,
+    dplyr (>= 1.0.0),
     data.table,
     purrr,
     tibble,
