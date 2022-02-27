@@ -30,6 +30,6 @@ Imports:
     shiny,
     echarts4r,
     tidyr,
-    rlang,
+    rlang (>= 1.0.0),
     visNetwork
 Remotes: rstudio/connectapi
