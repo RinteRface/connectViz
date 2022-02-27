@@ -23,7 +23,7 @@ Imports:
     data.table,
     purrr,
     tibble,
-    apexcharter,
+    apexcharter (>= 0.3.0.9100),
     scales,
     toastui,
     connectapi (>= 0.1.0.9031),
