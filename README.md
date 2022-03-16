@@ -16,6 +16,15 @@ You can install the development version of `{connectViz}` like so:
 remotes::install_github("RinteRface/connectViz")
 ```
 
+## Prerequisites
+Before starting with `{connectViz}`, makes sure to have the two following environment variables setup:
+
+  - `CONNECT_SERVER`: points to the RStudio Connect server for instance `https://beta.rstudioconnect.com`.
+  - `CONNECT_API_KEY`: the API key you generate from RStudio Connect server. 
+  
+
+
+
 ## Contribute
 This package is still a proof of concept. If you want to help improving it and test it on your own RStudio Connect server:
 - Install it.
