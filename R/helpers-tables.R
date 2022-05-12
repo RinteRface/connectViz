@@ -116,5 +116,5 @@ create_table_sparkline <- function(table) {
 #' usage.
 #' @export
 create_app_ranking_table <- function(ranking, pagination = 10, height = NULL) {
-  ranking[[2]] %>% generate_table(sparkline = TRUE)
+  ranking[[2]] %>% generate_table(sparkline = TRUE, pagination, height)
 }
