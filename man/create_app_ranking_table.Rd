@@ -4,10 +4,15 @@
 \alias{create_app_ranking_table}
 \title{Create app ranking table}
 \usage{
-create_app_ranking_table(ranking)
+create_app_ranking_table(ranking, pagination = 10, height = NULL)
 }
 \arguments{
 \item{ranking}{Ranked data from \link{create_app_ranking}.}
+
+\item{pagination}{Control number of lines to display per page.
+If NULL, all data are displayed.}
+
+\item{height}{Table height. CSS units.}
 }
 \value{
 An htmlwidget table containing app ranking, owner sorted by

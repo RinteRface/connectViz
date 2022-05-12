@@ -4,12 +4,17 @@
 \alias{generate_table}
 \title{Generate htmlWidgets table}
 \usage{
-generate_table(logs, sparkline = FALSE)
+generate_table(logs, sparkline = FALSE, pagination = 10, height = NULL)
 }
 \arguments{
 \item{logs}{Obtained with \code{get_rsc_apps_usage}.}
 
 \item{sparkline}{Whether to draw a sparkline.}
+
+\item{pagination}{Control number of lines to display per page.
+If NULL, all data are displayed.}
+
+\item{height}{Table height. CSS units.}
 }
 \value{
 An htmlwidget table.

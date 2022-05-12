@@ -4,11 +4,14 @@
 #'
 #' @param logs Obtained with `get_rsc_apps_usage`.
 #' @param sparkline Whether to draw a sparkline.
+#' @param pagination Control number of lines to display per page.
+#' If NULL, all data are displayed.
+#' @param height Table height. CSS units.
 #'
 #' @return An htmlwidget table.
 #' @import toastui
 #' @export
-generate_table <- function(logs, sparkline = FALSE) {
+generate_table <- function(logs, sparkline = FALSE, pagination = 10, height = NULL) {
 
   # Prepare for additional metrics
   max_logs <- get_max_rsc_apps_usage(logs)
@@ -19,7 +22,8 @@ generate_table <- function(logs, sparkline = FALSE) {
   table <- datagrid(
     logs,
     filters = TRUE,
-    pagination = 10
+    pagination = pagination,
+    height = height
   ) %>%
     grid_style_column(
       column = "n",
@@ -105,9 +109,12 @@ create_table_sparkline <- function(table) {
 #' See \url{https://dreamrs.github.io/toastui/articles/extras/grid.html}.
 #'
 #' @param ranking Ranked data from \link{create_app_ranking}.
+#' @param pagination Control number of lines to display per page.
+#' If NULL, all data are displayed.
+#' @param height Table height. CSS units.
 #' @return An htmlwidget table containing app ranking, owner sorted by
 #' usage.
 #' @export
-create_app_ranking_table <- function(ranking) {
+create_app_ranking_table <- function(ranking, pagination = 10, height = NULL) {
   ranking[[2]] %>% generate_table(sparkline = TRUE)
 }
