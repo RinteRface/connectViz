@@ -30,7 +30,7 @@ create_calendar_chart <- function(calendar_data, title) {
       ) %>%
       e_title(title) %>%
       e_tooltip() %>%
-      e_legend(FALSE)
+      e_legend(top = "middle", left = "right")
   })
 }
 
