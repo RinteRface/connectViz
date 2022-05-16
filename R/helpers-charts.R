@@ -10,7 +10,7 @@
 #' @return An echarts4r calendar chart
 #' @export
 #' @import echarts4r
-#' @importFrom shiny validate need
+#' @importFrom shiny validate need is.reactive
 create_calendar_chart <- function(
   calendar_data,
   title,
@@ -22,6 +22,8 @@ create_calendar_chart <- function(
 
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
+    if (is.reactive(start_date)) start_date <- start_date()
+    if (is.reactive(end_date)) end_date <- end_date()
 
     calendar_data <- calendar_data()
     range <- c(start_date, end_date)
