@@ -86,6 +86,7 @@ create_user_daily_consumption_chart <- function(usage) {
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
+#' @importFrom shiny req
 create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 
   username <- cum_duration <- NULL
@@ -121,6 +122,7 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
+#' @importFrom shiny req
 create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
 
   username <- NULL
@@ -149,6 +151,7 @@ create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
 #' See \link{create_dev_ranking}.
 #'
 #' @param ranking Obtained after calling \link{create_dev_ranking}.
+#' Can be reactive.
 #' @param threshold Minimum number of app threshold. You'll need a numericInput
 #' wrapped by \link[shiny]{reactive}.
 #'
@@ -157,11 +160,13 @@ create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
+#' @importFrom shiny is.reactive
 create_dev_ranking_chart <- function(ranking, threshold) {
 
   username <- n_apps <- NULL
 
   renderEcharts4r({
+    if (is.reactive(ranking)) ranking <- ranking()
     ranking %>%
       filter(.data$n_apps > threshold()) %>%
       arrange(.data$n_apps) %>%
@@ -179,15 +184,20 @@ create_dev_ranking_chart <- function(ranking, threshold) {
 #'
 #' @param ranking Developer ranking. See \link{create_dev_ranking}. Useful
 #' to get developers sorted by decreasing number of projects in the shiny selectInput.
+#' Can be reactive.
 #' @param client RSC client. See \link{create_rsc_client}.
 #' @param apps_usage First element returned by \link{create_app_ranking}.
+#' Can be reactive.
 #' @param selected_dev Developer to select. You'll need a selectInput wrapped by \link[shiny]{reactive}.
 #' @return A visNetwork htmlwidget with developer projects.
 #' @export
 #' @import visNetwork
+#' @importFrom shiny is.reactive
 create_dev_project_overview <- function(ranking, client, apps_usage, selected_dev) {
 
   renderVisNetwork({
+    if (is.reactive(ranking)) ranking <- ranking()
+    if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     apps <- get_rsc_developer_apps_list(
       connectapi::user_guid_from_username(client, selected_dev()),
       apps_usage
@@ -202,7 +212,7 @@ create_dev_project_overview <- function(ranking, client, apps_usage, selected_de
       id = seq_len(nrow(apps) + 1),
       group = groups,
       label = c(
-        selected_dev,
+        selected_dev(),
         paste0(
           apps$app_name,
           " (n view: ",

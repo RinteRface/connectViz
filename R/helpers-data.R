@@ -179,9 +179,9 @@ process_rsc_content <- function(content) {
 #'
 #' See \link{create_app_ranking}.
 #'
-#' @param content Get from \link[connectapi]{get_content}.
-#' @param users Get from \link[connectapi]{get_users}.
-#' @param apps Get from \link[connectapi]{get_usage_shiny}.
+#' @param content Get from \link[connectapi]{get_content}. Can be reactive.
+#' @param users Get from \link[connectapi]{get_users}. Can be reactive.
+#' @param apps Get from \link[connectapi]{get_usage_shiny}. Can be reactive.
 #'
 #' @return A list of 3 tibbles. `[[1]]`: light RSC content data (less columns);
 #' `[[2]]`: light RSC users data (less columns); `[[3]]`: merged apps_usage data.
@@ -221,15 +221,18 @@ merge_rsc_data <- function(content, users, apps) {
 #' Used by \link{create_app_daily_usage_chart}
 #'.
 #' @param apps_usage Second element returned by \link{create_app_ranking}.
+#' Can also be reactive.
 #' @param selected_app Selected app name (string). You'll need a selectInput for instance.
 #' wrapped by \link[shiny]{reactive}.
 #' @return Calendar data for daily app usage.
 #' @export
-#' @importFrom shiny reactive
+#' @importFrom shiny reactive is.reactive
 #' @import dplyr
 #' @importFrom rlang .data
 get_app_daily_usage <- function(apps_usage, selected_app) {
   reactive({
+    # distinguish between static data vs reactive data
+    if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     req(selected_app())
     apps_usage %>%
       filter(.data$app_name == selected_app()) %>%
@@ -250,11 +253,14 @@ get_app_daily_usage <- function(apps_usage, selected_app) {
 #' @export
 #' @import dplyr
 #' @importFrom rlang .data
-#' @importFrom shiny reactive
+#' @importFrom shiny reactive is.reactive
 get_user_daily_consumption <- function(content, users, apps, selected_user) {
-  rsc_data_merged <- merge_rsc_data(content, users, apps)
-
   reactive({
+    if (is.reactive(content)) content <- content()
+    if (is.reactive(users)) users <- users()
+    if (is.reactive(apps)) apps <- apps()
+
+    rsc_data_merged <- merge_rsc_data(content, users, apps)
     tmp <- rsc_data_merged[[3]] %>%
       filter(.data$username == selected_user())
 
@@ -281,22 +287,33 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
 #' `[[2]]`: data to be digested by \link{create_app_ranking_table}.
 #' @export
 #' @import dplyr
-#' @importFrom rlang .data
+#' @importFrom rlang .data quo eval_tidy
+#' @importFrom shiny reactive is.reactive
 create_app_ranking <- function(content, users, apps) {
+  tmp <- quo({
+    rsc_data_merged <- merge_rsc_data(content, users, apps)
 
-  rsc_data_merged <- merge_rsc_data(content, users, apps)
+    processed_rsc_apps_usage <- rsc_data_merged[[3]] %>%
+      get_rsc_apps_usage() %>%
+      left_join(
+        rsc_data_merged[[1]] %>%
+          mutate(user_guid = .data$owner_guid),
+        by = "app_name"
+      ) %>%
+      left_join(rsc_data_merged[[2]], by = "user_guid") %>%
+      select(-contains("_guid"))
 
-  processed_rsc_apps_usage <- rsc_data_merged[[3]] %>%
-    get_rsc_apps_usage() %>%
-    left_join(
-      rsc_data_merged[[1]] %>%
-        mutate(user_guid = .data$owner_guid),
-      by = "app_name"
-    ) %>%
-    left_join(rsc_data_merged[[2]], by = "user_guid") %>%
-    select(-contains("_guid"))
+    list(rsc_data_merged[[3]], processed_rsc_apps_usage)
+  })
 
-  list(rsc_data_merged[[3]], processed_rsc_apps_usage)
+  if (is.reactive(users) || is.reactive(content) || is.reactive(apps)) {
+    if (is.reactive(users)) user <- users()
+    if (is.reactive(content)) content <- content()
+    if (is.reactive(apps)) apps <- apps()
+    rlang::inject(reactive(!!tmp))
+  } else {
+    eval_tidy(tmp)
+  }
 }
 
 
@@ -305,8 +322,8 @@ create_app_ranking <- function(content, users, apps) {
 #'
 #' Sort consumers by number of views.
 #'
-#' @param apps Get from \link[connectapi]{get_usage_shiny}.
-#' @param users Get from \link[connectapi]{get_users}.
+#' @param apps Get from \link[connectapi]{get_usage_shiny}. Can be reactive or not.
+#' @param users Get from \link[connectapi]{get_users}. Can be reactive or not.
 #' @param threshold Minimum number of views threshold. You'll need a numericInput
 #' wrapped by \link[shiny]{reactive}.
 #'
@@ -315,9 +332,11 @@ create_app_ranking <- function(content, users, apps) {
 #' @export
 #' @import dplyr
 #' @importFrom rlang .data
-#' @importFrom shiny reactive
+#' @importFrom shiny reactive is.reactive
 create_apps_consumer_ranking <- function(apps, users, threshold) {
   reactive({
+    if (is.reactive(apps)) apps <- apps()
+    if (is.reactive(users)) users <- users()
     apps %>%
       group_by(.data$user_guid) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
@@ -341,19 +360,29 @@ create_apps_consumer_ranking <- function(apps, users, threshold) {
 #' @return A tibble with developer ranked by decreasing number of apps.
 #' @export
 #' @import dplyr
-#' @importFrom rlang .data
+#' @importFrom rlang .data quo eval_tidy
+#' @importFrom shiny reactive is.reactive
 create_dev_ranking <- function(users, content) {
-  users %>%
-    filter(.data$user_role == "publisher") %>%
-    mutate(
-      n_apps = map_int(
-        .data$guid,
-        get_rsc_developer_apps_count,
-        logs = content
-      )
-    ) %>%
-    filter(.data$n_apps > 0) %>%
-    arrange(desc(.data$n_apps))
+  tmp <- quo(
+    users %>%
+      filter(.data$user_role == "publisher") %>%
+      mutate(
+        n_apps = map_int(
+          .data$guid,
+          get_rsc_developer_apps_count,
+          logs = content
+        )
+      ) %>%
+      filter(.data$n_apps > 0) %>%
+      arrange(desc(.data$n_apps))
+  )
+  if (is.reactive(users) || is.reactive(content)) {
+    if (is.reactive(users)) user <- users()
+    if (is.reactive(content)) content <- content()
+    rlang::inject(reactive(!!tmp))
+  } else {
+    eval_tidy(tmp)
+  }
 }
 
 

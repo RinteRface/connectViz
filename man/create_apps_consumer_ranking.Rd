@@ -7,9 +7,9 @@
 create_apps_consumer_ranking(apps, users, threshold)
 }
 \arguments{
-\item{apps}{Get from \link[connectapi]{get_usage_shiny}.}
+\item{apps}{Get from \link[connectapi]{get_usage_shiny}. Can be reactive or not.}
 
-\item{users}{Get from \link[connectapi]{get_users}.}
+\item{users}{Get from \link[connectapi]{get_users}. Can be reactive or not.}
 
 \item{threshold}{Minimum number of views threshold. You'll need a numericInput
 wrapped by \link[shiny]{reactive}.}

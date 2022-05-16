@@ -7,11 +7,11 @@
 merge_rsc_data(content, users, apps)
 }
 \arguments{
-\item{content}{Get from \link[connectapi]{get_content}.}
+\item{content}{Get from \link[connectapi]{get_content}. Can be reactive.}
 
-\item{users}{Get from \link[connectapi]{get_users}.}
+\item{users}{Get from \link[connectapi]{get_users}. Can be reactive.}
 
-\item{apps}{Get from \link[connectapi]{get_usage_shiny}.}
+\item{apps}{Get from \link[connectapi]{get_usage_shiny}. Can be reactive.}
 }
 \value{
 A list of 3 tibbles. \verb{[[1]]}: light RSC content data (less columns);

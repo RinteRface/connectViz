@@ -7,7 +7,8 @@
 create_dev_ranking_chart(ranking, threshold)
 }
 \arguments{
-\item{ranking}{Obtained after calling \link{create_dev_ranking}.}
+\item{ranking}{Obtained after calling \link{create_dev_ranking}.
+Can be reactive.}
 
 \item{threshold}{Minimum number of app threshold. You'll need a numericInput
 wrapped by \link[shiny]{reactive}.}

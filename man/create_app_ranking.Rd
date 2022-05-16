@@ -7,11 +7,11 @@
 create_app_ranking(content, users, apps)
 }
 \arguments{
-\item{content}{Get from \link[connectapi]{get_content}.}
+\item{content}{Get from \link[connectapi]{get_content}. Can be reactive.}
 
-\item{users}{Get from \link[connectapi]{get_users}.}
+\item{users}{Get from \link[connectapi]{get_users}. Can be reactive.}
 
-\item{apps}{Get from \link[connectapi]{get_usage_shiny}.}
+\item{apps}{Get from \link[connectapi]{get_usage_shiny}. Can be reactive.}
 }
 \value{
 A list containing: \verb{[[1]]} merged data between app usage and users data.

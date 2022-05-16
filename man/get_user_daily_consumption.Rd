@@ -7,11 +7,11 @@
 get_user_daily_consumption(content, users, apps, selected_user)
 }
 \arguments{
-\item{content}{Get from \link[connectapi]{get_content}.}
+\item{content}{Get from \link[connectapi]{get_content}. Can be reactive.}
 
-\item{users}{Get from \link[connectapi]{get_users}.}
+\item{users}{Get from \link[connectapi]{get_users}. Can be reactive.}
 
-\item{apps}{Get from \link[connectapi]{get_usage_shiny}.}
+\item{apps}{Get from \link[connectapi]{get_usage_shiny}. Can be reactive.}
 
 \item{selected_user}{User to select.
 You'll need a selectInput wrapped by \link[shiny]{reactive}.}

@@ -7,7 +7,8 @@
 get_app_daily_usage(apps_usage, selected_app)
 }
 \arguments{
-\item{apps_usage}{Second element returned by \link{create_app_ranking}.}
+\item{apps_usage}{Second element returned by \link{create_app_ranking}.
+Can also be reactive.}
 
 \item{selected_app}{Selected app name (string). You'll need a selectInput for instance.
 wrapped by \link[shiny]{reactive}.}
