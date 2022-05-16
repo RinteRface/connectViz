@@ -26,7 +26,8 @@ create_calendar_chart <- function(calendar_data, title) {
         max = max,
         inRange = list(
           color = c('#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695')
-        )
+        ),
+        show = FALSE
       ) %>%
       e_title(title) %>%
       e_tooltip() %>%
