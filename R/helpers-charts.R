@@ -273,5 +273,10 @@ create_pie_chart <- function(data, x_axis) {
     e_pie(Percentage, radius = c("50%", "70%")) %>%
     e_title(paste("RSC", names(data)[[1]], "(%)")) %>%
     e_tooltip() %>%
-    e_legend(type = "scroll")
+    e_legend(
+      type = "scroll",
+      orient = "vertical",
+      left = "right",
+      top = "bottom"
+    )
 }
