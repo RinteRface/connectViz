@@ -81,6 +81,7 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
   username <- cum_duration <- NULL
 
   renderEcharts4r({
+    req(selected_app())
     apps_usage %>%
       filter(.data$app_name == !!selected_app()) %>%
       mutate(duration = as.numeric(.data$duration)) %>%
@@ -115,6 +116,7 @@ create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
   username <- NULL
 
   renderEcharts4r({
+    req(selected_app())
     apps_usage %>%
       filter(.data$app_name == !!selected_app()) %>%
       group_by(.data$username) %>%

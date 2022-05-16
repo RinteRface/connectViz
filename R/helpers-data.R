@@ -230,6 +230,7 @@ merge_rsc_data <- function(content, users, apps) {
 #' @importFrom rlang .data
 get_app_daily_usage <- function(apps_usage, selected_app) {
   reactive({
+    req(selected_app())
     apps_usage %>%
       filter(.data$app_name == selected_app()) %>%
       select(.data$calendar_data) %>%
