@@ -21,7 +21,7 @@ create_calendar_chart <- function(calendar_data, title) {
     calendar_data %>%
       e_charts(Date, width = "1200px") %>%
       e_calendar(range = range) %>%
-      e_effect_scatter(Freq, coord_system = "calendar") %>%
+      e_effect_scatter(Freq, coord_system = "calendar", legend = FALSE) %>%
       e_visual_map(
         max = max,
         inRange = list(
@@ -30,7 +30,7 @@ create_calendar_chart <- function(calendar_data, title) {
       ) %>%
       e_title(title) %>%
       e_tooltip() %>%
-      e_legend(top = "middle", left = "right")
+      e_legend(show = FALSE)
   })
 }
 
