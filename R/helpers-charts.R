@@ -19,7 +19,7 @@ create_calendar_chart <- function(calendar_data, title) {
     max <- max(calendar_data$Freq)
 
     calendar_data %>%
-      e_charts(Date, width = "1200px") %>%
+      e_charts(Date) %>%
       e_calendar(range = range) %>%
       e_effect_scatter(Freq, coord_system = "calendar", legend = FALSE) %>%
       e_visual_map(
@@ -272,5 +272,6 @@ create_pie_chart <- function(data, x_axis) {
     e_charts_(x_axis) %>%
     e_pie(Percentage, radius = c("50%", "70%")) %>%
     e_title(paste("RSC", names(data)[[1]], "(%)")) %>%
-    e_tooltip()
+    e_tooltip() %>%
+    e_legend(type = "scroll")
 }
