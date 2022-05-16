@@ -2,12 +2,21 @@
 #'
 #' @param calendar_data Calendar chart data.
 #' @param title Chart title.
+#' @param start_date Default to minimum calendar_data date. Could also be
+#' an input value with Shiny.
+#' @param end_date Default to maximum calendar_data date. Could also be
+#' an input value with Shiny.
 #'
 #' @return An echarts4r calendar chart
 #' @export
 #' @import echarts4r
 #' @importFrom shiny validate need
-create_calendar_chart <- function(calendar_data, title) {
+create_calendar_chart <- function(
+  calendar_data,
+  title,
+  start_date = min(calendar_data$Date),
+  end_date = max(calendar_data$Date)
+) {
 
   Date <- Freq <- NULL
 
@@ -15,7 +24,7 @@ create_calendar_chart <- function(calendar_data, title) {
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
 
     calendar_data <- calendar_data()
-    range <- c(min(calendar_data$Date), max(calendar_data$Date))
+    range <- c(start_date, end_date)
     max <- max(calendar_data$Freq)
 
     calendar_data %>%

@@ -4,12 +4,23 @@
 \alias{create_calendar_chart}
 \title{Generic calendar chart generator}
 \usage{
-create_calendar_chart(calendar_data, title)
+create_calendar_chart(
+  calendar_data,
+  title,
+  start_date = min(calendar_data$Date),
+  end_date = max(calendar_data$Date)
+)
 }
 \arguments{
 \item{calendar_data}{Calendar chart data.}
 
 \item{title}{Chart title.}
+
+\item{start_date}{Default to minimum calendar_data date. Could also be
+an input value with Shiny.}
+
+\item{end_date}{Default to maximum calendar_data date. Could also be
+an input value with Shiny.}
 }
 \value{
 An echarts4r calendar chart
