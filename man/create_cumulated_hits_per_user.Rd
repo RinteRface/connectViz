@@ -7,7 +7,8 @@
 create_cumulated_hits_per_user(apps_usage, selected_app)
 }
 \arguments{
-\item{apps_usage}{First element returned by \link{create_app_ranking}.}
+\item{apps_usage}{First element returned by \link{create_app_ranking}.
+Can be reactive.}
 
 \item{selected_app}{Selected app name (string). You'll need a selectInput for instance
 wrapped by \link[shiny]{reactive}.}

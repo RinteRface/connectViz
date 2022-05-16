@@ -78,6 +78,7 @@ create_user_daily_consumption_chart <- function(usage) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
+#' Can be reactive.
 #' @param selected_app Selected app name (string). You'll need a selectInput for instance
 #' wrapped by \link[shiny]{reactive}.
 #'
@@ -86,12 +87,13 @@ create_user_daily_consumption_chart <- function(usage) {
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
-#' @importFrom shiny req
+#' @importFrom shiny req is.reactive
 create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 
   username <- cum_duration <- NULL
 
   renderEcharts4r({
+    if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     req(selected_app())
     apps_usage %>%
       filter(.data$app_name == !!selected_app()) %>%
@@ -114,6 +116,7 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 #' Bar chart
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
+#' Can be reactive.
 #' @param selected_app Selected app name (string). You'll need a selectInput for instance
 #' wrapped by \link[shiny]{reactive}.
 #'
@@ -122,12 +125,13 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 #' @import echarts4r
 #' @import dplyr
 #' @importFrom rlang .data
-#' @importFrom shiny req
+#' @importFrom shiny req is.reactive
 create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
 
   username <- NULL
 
   renderEcharts4r({
+    if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     req(selected_app())
     apps_usage %>%
       filter(.data$app_name == !!selected_app()) %>%
