@@ -6,7 +6,7 @@
 #' an input value with Shiny.
 #' @param end_date Default to maximum calendar_data date. Could also be
 #' an input value with Shiny.
-#' @param callback R function to pass \link[htmlwidgets]{onRender}. This is
+#' @param callback JS function to pass to \link[htmlwidgets]{onRender}. This is
 #' useful to access the widget API on the R side at render time
 #' and add events on the fly.
 #'
@@ -49,7 +49,7 @@ create_calendar_chart <- function(
       e_legend(show = FALSE)
 
     if (!is.null(callback)) {
-      calendar_chart %>% callback
+      calendar_chart %>% htmlwidgets::onRender(callback)
     } else {
       calendar_chart
     }

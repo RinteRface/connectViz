@@ -1,6 +1,6 @@
 Package: connectViz
 Title: Visualize Your 'RStudio Connect' Server Usage Data
-Version: 0.0.0.912
+Version: 0.0.0.9130
 Authors@R: 
     person("David", "Granjon", , "dgranjon@ymail.com", role = c("aut", "cre"))
 Description: A collection of helper functions and 'htmlwidgets' to help admins or 
@@ -31,5 +31,6 @@ Imports:
     echarts4r,
     tidyr,
     rlang (>= 1.0.0),
-    visNetwork
+    visNetwork,
+    htmlwidgets
 Remotes: rstudio/connectapi
