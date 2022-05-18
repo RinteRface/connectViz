@@ -8,7 +8,8 @@ create_calendar_chart(
   calendar_data,
   title,
   start_date = min(calendar_data$Date),
-  end_date = max(calendar_data$Date)
+  end_date = max(calendar_data$Date),
+  callback = NULL
 )
 }
 \arguments{
@@ -21,6 +22,10 @@ an input value with Shiny.}
 
 \item{end_date}{Default to maximum calendar_data date. Could also be
 an input value with Shiny.}
+
+\item{callback}{R function to pass \link[htmlwidgets]{onRender}. This is
+useful to access the widget API on the R side at render time
+and add events on the fly.}
 }
 \value{
 An echarts4r calendar chart

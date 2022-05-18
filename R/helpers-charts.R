@@ -6,6 +6,9 @@
 #' an input value with Shiny.
 #' @param end_date Default to maximum calendar_data date. Could also be
 #' an input value with Shiny.
+#' @param callback R function to pass \link[htmlwidgets]{onRender}. This is
+#' useful to access the widget API on the R side at render time
+#' and add events on the fly.
 #'
 #' @return An echarts4r calendar chart
 #' @export
@@ -15,7 +18,8 @@ create_calendar_chart <- function(
   calendar_data,
   title,
   start_date = min(calendar_data$Date),
-  end_date = max(calendar_data$Date)
+  end_date = max(calendar_data$Date),
+  callback = NULL
 ) {
 
   Date <- Freq <- NULL
@@ -29,7 +33,7 @@ create_calendar_chart <- function(
     range <- c(start_date, end_date)
     max <- max(calendar_data$Freq)
 
-    calendar_data %>%
+    calendar_chart <- calendar_data %>%
       e_charts(Date) %>%
       e_calendar(range = range) %>%
       e_effect_scatter(Freq, coord_system = "calendar", legend = FALSE) %>%
@@ -43,6 +47,13 @@ create_calendar_chart <- function(
       e_title(title) %>%
       e_tooltip() %>%
       e_legend(show = FALSE)
+
+    if (!is.null(callback)) {
+      calendar_chart %>% callback
+    } else {
+      calendar_chart
+    }
+
   })
 }
 
