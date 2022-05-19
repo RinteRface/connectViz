@@ -19,8 +19,8 @@ create_calendar_chart <- function(
   calendar_data,
   title,
   subtitle,
-  start_date = min(calendar_data$Date),
-  end_date = max(calendar_data$Date),
+  start_date = NULL,
+  end_date = NULL,
   callback = NULL
 ) {
 
@@ -28,10 +28,12 @@ create_calendar_chart <- function(
 
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
+    if (is.reactive(calendar_data)) calendar_data <- calendar_data()
+    if (is.null(start_date)) start_date <- min(calendar_data$Date)
+    if (is.null(end_date)) end_date <- max(calendar_data$Date)
     if (is.reactive(start_date)) start_date <- start_date()
-    if (is.reactive(end_date)) end_date <- end_date()
+    if (is.reactive(end_date)) start_date <- end_date()
 
-    calendar_data <- calendar_data()
     range <- c(start_date, end_date)
     max <- max(calendar_data$Freq)
 

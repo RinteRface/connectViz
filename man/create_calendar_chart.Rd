@@ -8,8 +8,8 @@ create_calendar_chart(
   calendar_data,
   title,
   subtitle,
-  start_date = min(calendar_data$Date),
-  end_date = max(calendar_data$Date),
+  start_date = NULL,
+  end_date = NULL,
   callback = NULL
 )
 }
