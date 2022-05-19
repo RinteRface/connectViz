@@ -18,7 +18,7 @@
 create_calendar_chart <- function(
   calendar_data,
   title,
-  subtitle,
+  subtitle = NULL,
   start_date = NULL,
   end_date = NULL,
   callback = NULL
