@@ -17,7 +17,9 @@ get_user_daily_consumption(content, users, apps, selected_user)
 You'll need a selectInput wrapped by \link[shiny]{reactive}.}
 }
 \value{
-2 columns tibble containing daily app consuption for given user.
+A list. [\link{1}] contains the row events filtered for the
+given user. [\link{2}] is 2 columns tibble containing daily app consumption
+for given user (grouped by dates).
 }
 \description{
 Get daily shiny app usage for a given user

@@ -249,7 +249,9 @@ get_app_daily_usage <- function(apps_usage, selected_app) {
 #' @param selected_user User to select.
 #' You'll need a selectInput wrapped by \link[shiny]{reactive}.
 #'
-#' @return 2 columns tibble containing daily app consuption for given user.
+#' @return A list. [[1]] contains the row events filtered for the
+#' given user. [[2]] is 2 columns tibble containing daily app consumption
+#' for given user (grouped by dates).
 #' @export
 #' @import dplyr
 #' @importFrom rlang .data
@@ -261,15 +263,17 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
     if (is.reactive(apps)) apps <- apps()
 
     rsc_data_merged <- merge_rsc_data(content, users, apps)
-    tmp <- rsc_data_merged[[3]] %>%
+    events <- rsc_data_merged[[3]] %>%
       filter(.data$username == selected_user())
 
-    if (nrow(tmp) > 0) {
-     tmp %>%
+    if (nrow(events) > 0) {
+     grouped_by_date <- events %>%
         mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
         group_by(.data$floored_started) %>%
         count(sort = TRUE) %>%
         select(Date = .data$floored_started, Freq = .data$n)
+
+     list(events, grouped_by_date)
     } else {
       NULL
     }
