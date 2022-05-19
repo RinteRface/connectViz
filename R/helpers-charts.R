@@ -32,7 +32,7 @@ create_calendar_chart <- function(
     if (is.null(start_date)) start_date <- min(calendar_data$Date)
     if (is.null(end_date)) end_date <- max(calendar_data$Date)
     if (is.reactive(start_date)) start_date <- start_date()
-    if (is.reactive(end_date)) start_date <- end_date()
+    if (is.reactive(end_date)) end_date <- end_date()
 
     range <- c(start_date, end_date)
     max <- max(calendar_data$Freq)
