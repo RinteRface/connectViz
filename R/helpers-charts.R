@@ -2,6 +2,7 @@
 #'
 #' @param calendar_data Calendar chart data.
 #' @param title Chart title.
+#' @param subtitle Chart subtitle.
 #' @param start_date Default to minimum calendar_data date. Could also be
 #' an input value with Shiny.
 #' @param end_date Default to maximum calendar_data date. Could also be
@@ -17,6 +18,7 @@
 create_calendar_chart <- function(
   calendar_data,
   title,
+  subtitle,
   start_date = min(calendar_data$Date),
   end_date = max(calendar_data$Date),
   callback = NULL
@@ -44,7 +46,7 @@ create_calendar_chart <- function(
         ),
         show = FALSE
       ) %>%
-      e_title(title) %>%
+      e_title(title, subtitle) %>%
       e_tooltip() %>%
       e_legend(show = FALSE)
 

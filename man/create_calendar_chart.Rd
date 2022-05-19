@@ -7,6 +7,7 @@
 create_calendar_chart(
   calendar_data,
   title,
+  subtitle,
   start_date = min(calendar_data$Date),
   end_date = max(calendar_data$Date),
   callback = NULL
@@ -16,6 +17,8 @@ create_calendar_chart(
 \item{calendar_data}{Calendar chart data.}
 
 \item{title}{Chart title.}
+
+\item{subtitle}{Chart subtitle.}
 
 \item{start_date}{Default to minimum calendar_data date. Could also be
 an input value with Shiny.}
