@@ -257,27 +257,25 @@ get_app_daily_usage <- function(apps_usage, selected_app) {
 #' @importFrom rlang .data
 #' @importFrom shiny reactive is.reactive
 get_user_daily_consumption <- function(content, users, apps, selected_user) {
-  reactive({
+  events <- reactive({
     if (is.reactive(content)) content <- content()
     if (is.reactive(users)) users <- users()
     if (is.reactive(apps)) apps <- apps()
 
     rsc_data_merged <- merge_rsc_data(content, users, apps)
-    events <- rsc_data_merged[[3]] %>%
+    rsc_data_merged[[3]] %>%
       filter(.data$username == selected_user())
-
-    if (nrow(events) > 0) {
-     grouped_by_date <- events %>%
-        mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
-        group_by(.data$floored_started) %>%
-        count(sort = TRUE) %>%
-        select(Date = .data$floored_started, Freq = .data$n)
-
-     list(events, grouped_by_date)
-    } else {
-      NULL
-    }
   })
+
+  grouped_by_date <- reactive({
+    req(nrow(events()) > 0)
+    events() %>%
+      mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
+      group_by(.data$floored_started) %>%
+      count(sort = TRUE) %>%
+      select(Date = .data$floored_started, Freq = .data$n)
+  })
+  list(events, grouped_by_date)
 }
 
 
