@@ -331,12 +331,11 @@ create_app_ranking <- function(content, users, apps) {
 #' columns allows further analysis.
 #' @export
 #' @import dplyr
-#' @importFrom rlang .data
+#' @importFrom rlang .data quo eval_tidy
 #' @importFrom shiny reactive is.reactive
 create_apps_consumer_ranking <- function(apps, users) {
-  reactive({
-    if (is.reactive(apps)) apps <- apps()
-    if (is.reactive(users)) users <- users()
+
+  tmp <- quo(
     apps %>%
       group_by(.data$user_guid) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
@@ -344,7 +343,15 @@ create_apps_consumer_ranking <- function(apps, users) {
       left_join(users %>% mutate(user_guid = .data$guid), by = "user_guid") %>%
       select(.data$username, .data$n, .data$user_role) %>%
       tidyr::replace_na(list(username = "Unknown", user_role = "External"))
-  })
+  )
+
+  if (is.reactive(users) || is.reactive(content)) {
+    if (is.reactive(apps)) apps <- apps()
+    if (is.reactive(users)) users <- users()
+    rlang::inject(reactive(!!tmp))
+  } else {
+    eval_tidy(tmp)
+  }
 }
 
 
