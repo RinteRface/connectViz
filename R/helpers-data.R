@@ -345,7 +345,7 @@ create_apps_consumer_ranking <- function(apps, users) {
       tidyr::replace_na(list(username = "Unknown", user_role = "External"))
   )
 
-  if (is.reactive(users) || is.reactive(apps) {
+  if (is.reactive(users) || is.reactive(apps)) {
     if (is.reactive(apps)) apps <- apps()
     if (is.reactive(users)) users <- users()
     rlang::inject(reactive(!!tmp))
