@@ -4,10 +4,13 @@
 \alias{create_apps_consumer_ranking_chart}
 \title{Create apps consumer ranking bar chart}
 \usage{
-create_apps_consumer_ranking_chart(ranking)
+create_apps_consumer_ranking_chart(ranking, threshold)
 }
 \arguments{
 \item{ranking}{Data obtained from \link{create_apps_consumer_ranking}.}
+
+\item{threshold}{Minimum number of app threshold. You'll need a numericInput
+wrapped by \link[shiny]{reactive}.}
 }
 \value{
 A bar chart with consumer sorted by descending number of total views.

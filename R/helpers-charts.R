@@ -278,14 +278,19 @@ create_dev_project_overview <- function(ranking, client, apps_usage, selected_de
 #' Create apps consumer ranking bar chart
 #'
 #' @param ranking Data obtained from \link{create_apps_consumer_ranking}.
+#' @param threshold Minimum number of app threshold. You'll need a numericInput
+#' wrapped by \link[shiny]{reactive}.
 #'
 #' @return A bar chart with consumer sorted by descending number of total views.
 #' @export
-create_apps_consumer_ranking_chart <- function(ranking) {
+#' @importFrom shiny is.reactive
+create_apps_consumer_ranking_chart <- function(ranking, threshold) {
 
   username <- NULL
   renderEcharts4r({
+    if (is.reactive(ranking)) ranking <- ranking()
     ranking() %>%
+      filter(n > threshold()) %>%
       e_charts(username) %>%
       e_bar(n) %>%
       e_flip_coords() %>%

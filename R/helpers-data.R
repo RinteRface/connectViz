@@ -249,8 +249,8 @@ get_app_daily_usage <- function(apps_usage, selected_app) {
 #' @param selected_user User to select.
 #' You'll need a selectInput wrapped by \link[shiny]{reactive}.
 #'
-#' @return A list. [[1]] contains the row events filtered for the
-#' given user. [[2]] is 2 columns tibble containing daily app consumption
+#' @return A list. `[[1]]` contains the row events filtered for the
+#' given user. `[[2]]` is 2 columns tibble containing daily app consumption
 #' for given user (grouped by dates).
 #' @export
 #' @import dplyr
@@ -326,8 +326,6 @@ create_app_ranking <- function(content, users, apps) {
 #'
 #' @param apps Get from \link[connectapi]{get_usage_shiny}. Can be reactive or not.
 #' @param users Get from \link[connectapi]{get_users}. Can be reactive or not.
-#' @param threshold Minimum number of views threshold. You'll need a numericInput
-#' wrapped by \link[shiny]{reactive}.
 #'
 #' @return A 3 columns tibble with apps consumer sorted by number of view. The role
 #' columns allows further analysis.
@@ -335,7 +333,7 @@ create_app_ranking <- function(content, users, apps) {
 #' @import dplyr
 #' @importFrom rlang .data
 #' @importFrom shiny reactive is.reactive
-create_apps_consumer_ranking <- function(apps, users, threshold) {
+create_apps_consumer_ranking <- function(apps, users) {
   reactive({
     if (is.reactive(apps)) apps <- apps()
     if (is.reactive(users)) users <- users()
@@ -343,7 +341,6 @@ create_apps_consumer_ranking <- function(apps, users, threshold) {
       group_by(.data$user_guid) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%
-      filter(n > threshold()) %>%
       left_join(users %>% mutate(user_guid = .data$guid), by = "user_guid") %>%
       select(.data$username, .data$n, .data$user_role) %>%
       tidyr::replace_na(list(username = "Unknown", user_role = "External"))

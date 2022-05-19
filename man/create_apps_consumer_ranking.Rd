@@ -4,15 +4,12 @@
 \alias{create_apps_consumer_ranking}
 \title{Create Shiny apps consumer ranking}
 \usage{
-create_apps_consumer_ranking(apps, users, threshold)
+create_apps_consumer_ranking(apps, users)
 }
 \arguments{
 \item{apps}{Get from \link[connectapi]{get_usage_shiny}. Can be reactive or not.}
 
 \item{users}{Get from \link[connectapi]{get_users}. Can be reactive or not.}
-
-\item{threshold}{Minimum number of views threshold. You'll need a numericInput
-wrapped by \link[shiny]{reactive}.}
 }
 \value{
 A 3 columns tibble with apps consumer sorted by number of view. The role
