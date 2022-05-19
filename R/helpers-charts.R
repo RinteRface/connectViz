@@ -204,9 +204,6 @@ create_dev_ranking_chart <- function(ranking, threshold) {
 #'
 #' Leverages visNetwork.
 #'
-#' @param ranking Developer ranking. See \link{create_dev_ranking}. Useful
-#' to get developers sorted by decreasing number of projects in the shiny selectInput.
-#' Can be reactive.
 #' @param client RSC client. See \link{create_rsc_client}.
 #' @param apps_usage First element returned by \link{create_app_ranking}.
 #' Can be reactive.
@@ -215,10 +212,9 @@ create_dev_ranking_chart <- function(ranking, threshold) {
 #' @export
 #' @import visNetwork
 #' @importFrom shiny is.reactive
-create_dev_project_overview <- function(ranking, client, apps_usage, selected_dev) {
+create_dev_project_overview <- function(client, apps_usage, selected_dev) {
 
   renderVisNetwork({
-    if (is.reactive(ranking)) ranking <- ranking()
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     apps <- get_rsc_developer_apps_list(
       connectapi::user_guid_from_username(client, selected_dev()),
@@ -289,7 +285,7 @@ create_apps_consumer_ranking_chart <- function(ranking, threshold) {
   username <- NULL
   renderEcharts4r({
     if (is.reactive(ranking)) ranking <- ranking()
-    ranking() %>%
+    ranking %>%
       filter(n > threshold()) %>%
       e_charts(username) %>%
       e_bar(n) %>%

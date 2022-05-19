@@ -4,13 +4,9 @@
 \alias{create_dev_project_overview}
 \title{Create developer project network overview}
 \usage{
-create_dev_project_overview(ranking, client, apps_usage, selected_dev)
+create_dev_project_overview(client, apps_usage, selected_dev)
 }
 \arguments{
-\item{ranking}{Developer ranking. See \link{create_dev_ranking}. Useful
-to get developers sorted by decreasing number of projects in the shiny selectInput.
-Can be reactive.}
-
 \item{client}{RSC client. See \link{create_rsc_client}.}
 
 \item{apps_usage}{First element returned by \link{create_app_ranking}.
