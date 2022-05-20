@@ -97,6 +97,10 @@ create_user_daily_consumption_chart <- function(usage) {
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
 #' Can be reactive.
+#' @param start_date Default to minimum calendar_data date. Could also be
+#' an input value with Shiny.
+#' @param end_date Default to maximum calendar_data date. Could also be
+#' an input value with Shiny.
 #' @param selected_app Selected app name (string). You'll need a selectInput for instance
 #' wrapped by \link[shiny]{reactive}.
 #'
@@ -106,15 +110,27 @@ create_user_daily_consumption_chart <- function(usage) {
 #' @import dplyr
 #' @importFrom rlang .data
 #' @importFrom shiny req is.reactive
-create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
+create_cumulated_duration_per_user <- function(
+  apps_usage,
+  start_date = NULL,
+  end_date = NULL,
+  selected_app) {
 
   username <- cum_duration <- NULL
 
   renderEcharts4r({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
+    if (is.null(start_date)) start_date <- min(apps_usage$started)
+    if (is.null(end_date)) end_date <- max(apps_usage$started)
+    if (is.reactive(start_date)) start_date <- start_date()
+    if (is.reactive(end_date)) end_date <- end_date()
     req(selected_app())
     apps_usage %>%
-      filter(.data$app_name == !!selected_app()) %>%
+      filter(
+        .data$started >= start_date &
+        .data$started <= end_date &
+        .data$app_name == !!selected_app()
+      ) %>%
       mutate(duration = as.numeric(.data$duration)) %>%
       group_by(.data$username) %>%
       summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
@@ -135,6 +151,10 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 #'
 #' @param apps_usage First element returned by \link{create_app_ranking}.
 #' Can be reactive.
+#' @param start_date Default to minimum calendar_data date. Could also be
+#' an input value with Shiny.
+#' @param end_date Default to maximum calendar_data date. Could also be
+#' an input value with Shiny.
 #' @param selected_app Selected app name (string). You'll need a selectInput for instance
 #' wrapped by \link[shiny]{reactive}.
 #'
@@ -144,15 +164,28 @@ create_cumulated_duration_per_user <- function(apps_usage, selected_app) {
 #' @import dplyr
 #' @importFrom rlang .data
 #' @importFrom shiny req is.reactive
-create_cumulated_hits_per_user <- function(apps_usage, selected_app) {
+create_cumulated_hits_per_user <- function(
+  apps_usage,
+  start_date = NULL,
+  end_date = NULL,
+  selected_app
+) {
 
   username <- NULL
 
   renderEcharts4r({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
+    if (is.null(start_date)) start_date <- min(apps_usage$started)
+    if (is.null(end_date)) end_date <- max(apps_usage$started)
+    if (is.reactive(start_date)) start_date <- start_date()
+    if (is.reactive(end_date)) end_date <- end_date()
     req(selected_app())
     apps_usage %>%
-      filter(.data$app_name == !!selected_app()) %>%
+      filter(
+        .data$started >= start_date &
+        .data$started <= end_date &
+        .data$app_name == !!selected_app()
+      ) %>%
       group_by(.data$username) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping
       arrange(n) %>%

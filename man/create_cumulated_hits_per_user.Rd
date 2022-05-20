@@ -4,11 +4,22 @@
 \alias{create_cumulated_hits_per_user}
 \title{Create cumulated app hits/user}
 \usage{
-create_cumulated_hits_per_user(apps_usage, selected_app)
+create_cumulated_hits_per_user(
+  apps_usage,
+  start_date = NULL,
+  end_date = NULL,
+  selected_app
+)
 }
 \arguments{
 \item{apps_usage}{First element returned by \link{create_app_ranking}.
 Can be reactive.}
+
+\item{start_date}{Default to minimum calendar_data date. Could also be
+an input value with Shiny.}
+
+\item{end_date}{Default to maximum calendar_data date. Could also be
+an input value with Shiny.}
 
 \item{selected_app}{Selected app name (string). You'll need a selectInput for instance
 wrapped by \link[shiny]{reactive}.}
