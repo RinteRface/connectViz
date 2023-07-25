@@ -444,7 +444,21 @@ sort_content_by_rversion <- function(content) {
     mutate(Percentage = round(n / sum(n) * 100, 1))
 }
 
-
+#' Sort RStudio Connect content by python version
+#'
+#'
+#' @param content Get from \link[connectapi]{get_content}.
+#'
+#' @return A tibble with content grouped by python version.
+#' @export
+#' @importFrom rlang .data
+sort_content_by_pyversion <- function(content) {
+  content %>%
+    filter(!is.na(.data$py_version)) %>%
+    group_by(.data$py_version) %>%
+    summarize(n = n()) %>%
+    mutate(Percentage = round(n / sum(n) * 100, 1))
+}
 
 #' Sort RStudio Connect content by app mode
 #'

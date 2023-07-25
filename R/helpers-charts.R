@@ -37,8 +37,10 @@ create_calendar_chart <- function(
 
     range <- c(start_date, end_date)
     max <- max(calendar_data$Freq)
+    calendar_data$Year <- format(calendar_data$Date, "%Y")
 
     calendar_chart <- calendar_data %>%
+      group_by(Year) %>%
       e_charts(Date) %>%
       e_calendar(range = range) %>%
       e_effect_scatter(Freq, coord_system = "calendar", legend = FALSE) %>%
