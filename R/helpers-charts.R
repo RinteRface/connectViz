@@ -249,10 +249,13 @@ create_dev_project_overview <- function(client, apps_usage, selected_dev) {
 
   renderVisNetwork({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
+    if (is.reactive(selected_dev)) selected_dev <- selected_dev()
     apps <- get_rsc_developer_apps_list(
-      connectapi::user_guid_from_username(client, selected_dev()),
+      connectapi::user_guid_from_username(client, selected_dev),
       apps_usage
     )
+
+    validate(need(nrow(apps) > 0, sprintf("No data found for %s", selected_dev)))
 
     groups <- c(
       rep(1, 1),
