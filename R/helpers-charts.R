@@ -131,9 +131,8 @@ create_cumulated_duration_per_user <- function(
         .data$started <= end_date &
         .data$app_name == !!selected_app()
       ) %>%
-      mutate(duration = as.numeric(.data$duration)) %>%
       group_by(.data$username) %>%
-      summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
+      summarise(cum_duration = as.numeric(round(sum(.data$duration) / 3600, 1))) %>%
       arrange(.data$cum_duration) %>%
       tidyr::replace_na(list(username = "Unknown")) %>%
       e_charts(username) %>%
