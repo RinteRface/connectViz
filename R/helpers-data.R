@@ -112,7 +112,7 @@ get_rsc_developer_apps_count <- function(developer, logs) {
 #' @importFrom rlang .data
 get_rsc_developer_apps_list <- function(developer, logs) {
   logs %>%
-    filter(.data$user_guid == !!developer) %>%
+    filter(.data$guid == !!developer) %>%
     group_by(.data$app_name) %>%
     count(sort = TRUE)
 }
