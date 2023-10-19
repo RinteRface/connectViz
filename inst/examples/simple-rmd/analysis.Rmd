@@ -25,7 +25,9 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 # Get raw data from RSC database
 apps_usage <- rsc_client %>% get_usage_shiny(limit = Inf)
 rsc_content <- rsc_client %>% get_content()
-rsc_users <- rsc_client %>% get_users(limit = Inf)
+# Remove locked users?
+rsc_users <- rsc_client %>% get_users(limit = Inf) %>% 
+  filter(locked == FALSE)
 publishers <- rsc_users %>% filter(user_role == "publisher") 
 shiny_apps <- rsc_content %>% filter(app_mode == "shiny")
 
@@ -120,7 +122,7 @@ consumer_ranking_card <- card(
       numericInput(
         "views_threshold",
         "N view threshold",
-        round(max(consumer_ranking$n / 2)),
+        1,
         min = 0
       )
     ),
