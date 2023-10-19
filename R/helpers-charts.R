@@ -139,7 +139,8 @@ create_cumulated_duration_per_user <- function(
       e_bar(cum_duration) %>%
       e_flip_coords() %>%
       e_axis_labels(x = "Duration (hours)", y = "End user") %>%
-      e_tooltip()
+      e_tooltip() %>%
+      e_x_axis(nameLocation = "center", nameTextStyle = list(padding = 10))
   })
 }
 
@@ -193,7 +194,8 @@ create_cumulated_hits_per_user <- function(
       e_bar(n) %>%
       e_flip_coords() %>%
       e_axis_labels(x = "Number of hits (app visit)", y = "End user") %>%
-      e_tooltip()
+      e_tooltip() %>%
+      e_x_axis(nameLocation = "center", nameTextStyle = list(padding = 10))
   })
 }
 
@@ -327,6 +329,7 @@ create_apps_consumer_ranking_chart <- function(ranking, threshold) {
       e_flip_coords() %>%
       e_axis_labels(x = "Number of hits", y = "End user") %>%
       e_tooltip() %>%
+      e_x_axis(nameLocation = "center", nameTextStyle = list(padding = 10)) %>%
       e_legend(FALSE)
   })
 }
