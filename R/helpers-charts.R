@@ -121,7 +121,7 @@ create_cumulated_duration_per_user <- function(
   renderEcharts4r({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     if (is.null(start_date)) start_date <- min(apps_usage$started)
-    if (is.null(end_date)) end_date <- max(apps_usage$ended)
+    if (is.null(end_date)) end_date <- max(apps_usage$ended, na.rm = TRUE)
     if (is.reactive(start_date)) start_date <- start_date()
     if (is.reactive(end_date)) end_date <- end_date()
     req(selected_app())
@@ -176,7 +176,7 @@ create_cumulated_hits_per_user <- function(
   renderEcharts4r({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     if (is.null(start_date)) start_date <- min(apps_usage$started)
-    if (is.null(end_date)) end_date <- max(apps_usage$started)
+    if (is.null(end_date)) end_date <- max(apps_usage$ended, na.rm = TRUE)
     if (is.reactive(start_date)) start_date <- start_date()
     if (is.reactive(end_date)) end_date <- end_date()
     req(selected_app())
