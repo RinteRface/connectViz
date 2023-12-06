@@ -284,6 +284,10 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
 #' See \link{create_app_ranking_table}.
 #'
 #' @inheritParams merge_rsc_data
+#' @param start_date Default to minimum calendar_data date. Could also be
+#' an input value with Shiny.
+#' @param end_date Default to maximum calendar_data date. Could also be
+#' an input value with Shiny.
 #'
 #' @return A list containing: `[[1]]` merged data between app usage and users data.
 #' `[[2]]`: data to be digested by \link{create_app_ranking_table}.
@@ -291,9 +295,21 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
 #' @import dplyr
 #' @importFrom rlang .data quo eval_tidy
 #' @importFrom shiny reactive is.reactive
-create_app_ranking <- function(content, users, apps) {
+create_app_ranking <- function(content, users, apps, start_date = NULL, end_date = NULL) {
   tmp <- quo({
     rsc_data_merged <- merge_rsc_data(content, users, apps)
+    if (is.null(start_date)) start_date <- min(rsc_data_merged$apps_usage_merged$started)
+    # Note: this might be surprising but some end date are not available in ended so
+    # we have to take the max of the start date.
+    if (is.null(end_date)) end_date <- max(rsc_data_merged$apps_usage_merged$started)
+    if (is.reactive(start_date)) start_date <- start_date()
+    if (is.reactive(end_date)) end_date <- end_date()
+
+    rsc_data_merged[[3]] <- rsc_data_merged[[3]] %>%
+      filter(
+        .data$started >= start_date &
+          .data$started <= end_date
+      )
 
     processed_rsc_apps_usage <- rsc_data_merged[[3]] %>%
       get_rsc_apps_usage() %>%
