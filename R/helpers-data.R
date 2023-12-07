@@ -324,7 +324,8 @@ create_app_ranking <- function(content, users, apps, start_date = NULL, end_date
     list(rsc_data_merged[[3]], processed_rsc_apps_usage)
   })
 
-  if (is.reactive(users) || is.reactive(content) || is.reactive(apps)) {
+  if (is.reactive(users) || is.reactive(content) || is.reactive(apps) ||
+      is.reactive(start_date) || is.reactive(end_date)) {
     if (is.reactive(users)) user <- users()
     if (is.reactive(content)) content <- content()
     if (is.reactive(apps)) apps <- apps()
