@@ -123,7 +123,7 @@ create_cumulated_duration_per_user <- function(
   renderEcharts4r({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     if (is.null(start_date)) start_date <- min(apps_usage$started)
-    if (is.null(end_date)) end_date <- max(apps_usage$started)
+    if (is.null(end_date)) end_date <- max(apps_usage$ended, na.rm = TRUE)
     if (is.reactive(start_date)) start_date <- start_date()
     if (is.reactive(end_date)) end_date <- end_date()
     req(selected_app())
@@ -133,16 +133,16 @@ create_cumulated_duration_per_user <- function(
         .data$started <= end_date &
         .data$app_name == !!selected_app()
       ) %>%
-      mutate(duration = as.numeric(.data$duration)) %>%
       group_by(.data$username) %>%
-      summarise(cum_duration = round(sum(.data$duration) / 3600)) %>%
+      summarise(cum_duration = as.numeric(round(sum(.data$duration) / 3600, 1))) %>%
       arrange(.data$cum_duration) %>%
       tidyr::replace_na(list(username = "Unknown")) %>%
       e_charts(username) %>%
       e_bar(cum_duration) %>%
       e_flip_coords() %>%
       e_axis_labels(x = "Duration (hours)", y = "End user") %>%
-      e_tooltip()
+      e_tooltip() %>%
+      e_x_axis(nameLocation = "center", nameTextStyle = list(padding = 10))
   })
 }
 
@@ -178,7 +178,7 @@ create_cumulated_hits_per_user <- function(
   renderEcharts4r({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
     if (is.null(start_date)) start_date <- min(apps_usage$started)
-    if (is.null(end_date)) end_date <- max(apps_usage$started)
+    if (is.null(end_date)) end_date <- max(apps_usage$ended, na.rm = TRUE)
     if (is.reactive(start_date)) start_date <- start_date()
     if (is.reactive(end_date)) end_date <- end_date()
     req(selected_app())
@@ -196,7 +196,8 @@ create_cumulated_hits_per_user <- function(
       e_bar(n) %>%
       e_flip_coords() %>%
       e_axis_labels(x = "Number of hits (app visit)", y = "End user") %>%
-      e_tooltip()
+      e_tooltip() %>%
+      e_x_axis(nameLocation = "center", nameTextStyle = list(padding = 10))
   })
 }
 
@@ -251,10 +252,13 @@ create_dev_project_overview <- function(client, apps_usage, selected_dev) {
 
   renderVisNetwork({
     if (is.reactive(apps_usage)) apps_usage <- apps_usage()
+    if (is.reactive(selected_dev)) selected_dev <- selected_dev()
     apps <- get_rsc_developer_apps_list(
-      connectapi::user_guid_from_username(client, selected_dev()),
+      connectapi::user_guid_from_username(client, selected_dev),
       apps_usage
     )
+
+    validate(need(nrow(apps) > 0, sprintf("No data found for %s", selected_dev)))
 
     groups <- c(
       rep(1, 1),
@@ -327,6 +331,7 @@ create_apps_consumer_ranking_chart <- function(ranking, threshold) {
       e_flip_coords() %>%
       e_axis_labels(x = "Number of hits", y = "End user") %>%
       e_tooltip() %>%
+      e_x_axis(nameLocation = "center", nameTextStyle = list(padding = 10)) %>%
       e_legend(FALSE)
   })
 }
