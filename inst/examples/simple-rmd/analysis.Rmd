@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: 
   html_document:
     theme:
-      version: 4
+      version: 5
 runtime: shiny
 ---
 
@@ -14,6 +14,9 @@ runtime: shiny
 library(connectapi) # Tested with 0.1.0.9031
 library(connectViz)
 library(dplyr)
+library(shiny)
+library(bslib)
+
 rsc_client <- create_rsc_client()
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 ```
@@ -22,7 +25,9 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 # Get raw data from RSC database
 apps_usage <- rsc_client %>% get_usage_shiny(limit = Inf)
 rsc_content <- rsc_client %>% get_content()
-rsc_users <- rsc_client %>% get_users(limit = Inf)
+# Remove locked users?
+rsc_users <- rsc_client %>% get_users(limit = Inf) %>% 
+  filter(locked == FALSE)
 publishers <- rsc_users %>% filter(user_role == "publisher") 
 shiny_apps <- rsc_content %>% filter(app_mode == "shiny")
 
@@ -30,143 +35,227 @@ shiny_apps <- rsc_content %>% filter(app_mode == "shiny")
 # rsc_static <- rsc_client %>% get_usage_static(limit = Inf)
 ```
 
-### General metrics
+### General metrics (n)
 
 ```{r general-metric}
 general_metrics <- list(
-  "Onboarded Users (n)" = nrow(rsc_users),
-  "Publishers (n)" = nrow(publishers),
-  "Deployments (n)" = nrow(rsc_content),
-  "Shiny Apps (n)" = nrow(shiny_apps)
+  "Onboarded Users" = nrow(rsc_users),
+  "Publishers" = nrow(publishers),
+  "Deployments" = nrow(rsc_content),
+  "Shiny Apps" = nrow(shiny_apps)
 )
 
-shiny::fluidRow(
-  align = "center",
-  purrr::map(
-    seq_along(general_metrics),
-    function(i) {
-      
-      shinydashboard::infoBox(
-        value = general_metrics[[i]],
-        title = names(general_metrics)[[i]]
-      )
-    }
-  )
+general_metrics_cards <- purrr::map(
+  seq_along(general_metrics),
+  function(i) {
+    value_box(
+      value = general_metrics[[i]],
+      title = names(general_metrics)[[i]]
+    )
+  }
+)
+
+layout_column_wrap(
+  width = 1/4,
+  !!!general_metrics_cards
 )
 ```
 
 ### Shiny Apps usage
 
+Important note: with a basic __publisher__ API key, we can only recover the data for the app   we own. It means that we are not able to track any other apps, including the one shared with   us as maintainer. An admin API has access to all usage data.
+
 #### Most used apps
 
 ```{r}
 apps_ranking <- create_app_ranking(rsc_content, rsc_users, apps_usage)
-create_app_ranking_table(apps_ranking)
+card(
+  full_screen = TRUE,
+  create_app_ranking_table(apps_ranking),
+)
 ```
 
 #### Daily app usage
 
 ```{r}
-selectInput("selected_app", "Select an application", apps_ranking[[2]]$app_name)
+
 daily_app_usage <- get_app_daily_usage(apps_ranking[[2]], reactive(input$selected_app))
-create_app_daily_usage_chart(daily_app_usage)
 ```
 
-#### Cumulated duration / user
-
-```{r duration-plot}
-create_cumulated_duration_per_user(apps_ranking[[1]], reactive(input$selected_app))
-```
-
-#### Number Hits / user
-
-```{r sessions-plot}
-create_cumulated_hits_per_user(apps_ranking[[1]], reactive(input$selected_app))
+```{r}
+card(
+  full_screen = TRUE,
+  card_header("App usage"),
+  layout_sidebar(
+    sidebar = sidebar(
+      width = 150,
+      selectInput(
+        "selected_app", 
+        "Select an application", 
+        apps_ranking[[2]]$app_name
+      )
+    ),
+    p("Daily app usage"),
+    create_app_daily_usage_chart(daily_app_usage),
+    create_cumulated_duration_per_user(
+      apps_ranking[[1]],
+      selected_app = reactive(input$selected_app)
+    ),
+    create_cumulated_hits_per_user(
+      apps_ranking[[1]], 
+      selected_app = reactive(input$selected_app)
+    )
+  )
+)
 ```
 
 ### Consumer data
 
-
-#### Consumer ranking
 ```{r consumer-session-ranking}
-numericInput(
-  "views_threshold",
-  "N view threshold",
-  100,
-  min = 0
+consumer_ranking <- create_apps_consumer_ranking(apps_usage, rsc_users)
+consumer_ranking_card <- card(
+  full_screen = TRUE,
+  card_header("Consumer ranking"),
+  layout_sidebar(
+    sidebar = sidebar(
+      width = 150,
+      numericInput(
+        "views_threshold",
+        "N view threshold",
+        1,
+        min = 0
+      )
+    ),
+    create_apps_consumer_ranking_chart(
+      consumer_ranking, reactive(input$views_threshold)
+    )
+  )
 )
-consumer_ranking <- create_apps_consumer_ranking(apps_usage, rsc_users, reactive(input$views_threshold))
-create_apps_consumer_ranking_chart(consumer_ranking)
 ```
-
-#### Daily app consumption
 
 ```{r daily-app-consumption-per-user}
-selectInput("selected_user", "Select an application", rsc_users$username)
 daily_consumption <- get_user_daily_consumption(rsc_content, rsc_users, apps_usage, reactive(input$selected_user))
-create_user_daily_consumption_chart(daily_consumption)
+daily_consumption_card <- card(
+  full_screen = TRUE,
+  card_header("Daily app consumption"),
+  layout_sidebar(
+    sidebar = sidebar(
+      width = 150,
+      selectInput("selected_user", "Select a user", rsc_users$username)
+    ),
+    create_user_daily_consumption_chart(daily_consumption[[2]])
+  )
+)
 ```
 
+```{r}
+layout_column_wrap(
+  width = 1/2,
+  daily_consumption_card,
+  consumer_ranking_card
+)
+```
 
 ### Developers data
 
-
-#### Developers ranking (number of deployments: api, static, shiny, rmd, ...)
-
 ```{r developers-ranking}
 developers_apps_ranking <- create_dev_ranking(rsc_users, rsc_content)
-numericInput(
-  "apps_threshold",
-  "N app threshold",
-  5,
-  min = 1,
-  max = developers_apps_ranking %>% pull(n_apps) %>% max()
+max_app <- developers_apps_ranking %>% pull(n_apps) %>% max()
+dev_ranking_card <- card(
+  full_screen = TRUE,
+  card_header("Developers ranking n deployments (static, shiny, rmd, ...)"),
+  layout_sidebar(
+    sidebar = sidebar(
+      width = 150,
+      numericInput(
+        "apps_threshold",
+        "N app threshold",
+        round(max_app / 2),
+        min = 1,
+        max = max_app
+      )
+    ),
+    create_dev_ranking_chart(
+      developers_apps_ranking, 
+      reactive(input$apps_threshold)
+    )
+  )
 )
-create_dev_ranking_chart(developers_apps_ranking, reactive(input$apps_threshold))
 ```
-
-#### Developer projects overview
 
 ```{r}
-selectInput(
-  "app_developer",
-  "Select a developer",
-  developers_apps_ranking$username
+dev_projects_card <- card(
+  full_screen = TRUE,
+  card_header("Dev projects overview (Shiny apps only)"),
+  layout_sidebar(
+    sidebar = sidebar(
+      width = 150,
+      selectInput(
+        "app_developer",
+        "Select a developer",
+        developers_apps_ranking$username
+      )
+    ),
+    create_dev_project_overview(
+      rsc_client, apps_ranking[[1]], 
+      reactive(input$app_developer)
+    )
+  )
 )
+```
 
-create_dev_project_overview(developers_apps_ranking, rsc_client, apps_ranking[[1]], reactive(input$app_developer))
+```{r}
+layout_column_wrap(
+  width = 1/2,
+  dev_ranking_card,
+  dev_projects_card
+)
 ```
 
 
-### Other data
+### General data
 
-#### Users repartition (%)
 
 ```{r user-repartition}
 # I realized some users are not active (ie active_time is NA).
 # Maybe to remove from the viz in the future?
-sort_users_by_role(rsc_users) %>% create_pie_chart("user_role")
+user_roles <- card(
+  full_screen = TRUE,
+  card_header("User roles"),
+  sort_users_by_role(rsc_users) |> create_pie_chart("user_role")
+)
 ```
-
-#### Content access
-
-How do people protect their content?
 
 ```{r content-access-type}
-sort_content_by_access(rsc_content) %>% create_pie_chart("access_type")
+content_access <- card(
+  full_screen = TRUE,
+  card_header("Content access type"),
+  sort_content_by_access(rsc_content) |> create_pie_chart("access_type")
+)
 ```
-
-
-#### R versions
-
-What are the R versions used?
 
 ```{r content-r-version}
-sort_content_by_rversion(rsc_content) %>% create_pie_chart("r_version")
+r_versions <- card(
+  full_screen = TRUE,
+  card_header("R versions"),
+  sort_content_by_rversion(rsc_content) |> create_pie_chart("r_version")
+)
 ```
 
-#### Content type
-
 ```{r content-type}
-sort_content_by_appmode(rsc_content) %>% create_pie_chart("app_mode")
+content_type <- card(
+  full_screen = TRUE,
+  card_header("Content type"),
+  sort_content_by_appmode(rsc_content) |> create_pie_chart("app_mode")
+)
+```
+
+```{r}
+layout_column_wrap(
+  width = 1/2,
+  user_roles,
+  content_access,
+  r_versions,
+  content_type
+)
 ```
