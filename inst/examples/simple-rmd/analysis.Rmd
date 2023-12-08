@@ -242,6 +242,14 @@ r_versions <- card(
 )
 ```
 
+```{r content-python-version}
+py_versions <- card(
+  full_screen = TRUE,
+  card_header("Python versions"),
+  sort_content_by_pyversion(rsc_content) |> create_pie_chart("py_version")
+)
+```
+
 ```{r content-type}
 content_type <- card(
   full_screen = TRUE,
@@ -256,6 +264,7 @@ layout_column_wrap(
   user_roles,
   content_access,
   r_versions,
+  py_versions,
   content_type
 )
 ```
