@@ -24,7 +24,7 @@ create_calendar_chart <- function(
   callback = NULL
 ) {
 
-  Date <- Freq <- Year <-NULL
+  Date <- Freq <- NULL
 
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
@@ -39,8 +39,6 @@ create_calendar_chart <- function(
     max <- max(calendar_data$Freq)
 
     calendar_chart <- calendar_data %>%
-      dplyr::mutate(Year = as.Date(Date, format = "%Y")) %>%
-      dplyr::group_by(Year) %>%
       e_charts(Date) %>%
       e_calendar(range = range) %>%
       e_effect_scatter(Freq, coord_system = "calendar", legend = FALSE) %>%
