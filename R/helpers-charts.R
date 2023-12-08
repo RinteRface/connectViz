@@ -39,7 +39,7 @@ create_calendar_chart <- function(
     max <- max(calendar_data$Freq)
 
     calendar_chart <- calendar_data %>%
-      dplyr::mutate(Year = format(date, "%Y")) %>%
+      dplyr::mutate(Year = as.Date(Date, format = "%Y")) %>%
       dplyr::group_by(Year) %>%
       e_charts(Date) %>%
       e_calendar(range = range) %>%

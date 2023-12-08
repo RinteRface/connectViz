@@ -35,7 +35,7 @@ generate_table <- function(logs, sparkline = FALSE, pagination = 10, height = NU
       color = ifelse(n > !!threshold, "white", "black")
     ) %>%
     grid_summary(
-      column = "n",
+      columns = "n",
       stat = "avg",
       label = "Mean usage: ",
       position = "top"
