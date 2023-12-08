@@ -24,7 +24,7 @@ create_calendar_chart <- function(
   callback = NULL
 ) {
 
-  Date <- Freq <- NULL
+  Date <- Freq <- Year <-NULL
 
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
