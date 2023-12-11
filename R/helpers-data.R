@@ -445,8 +445,8 @@ sort_users_by_role <- function(users, start_date = NULL, end_date = NULL) {
 #' @export
 #' @importFrom rlang .data
 sort_content_by_access <- function(content, start_date = NULL, end_date = NULL) {
-  if (is.null(start_date)) start_date <- min(user$created_time)
-  if (is.null(start_date)) end_date <- max(user$created_time)
+  if (is.null(start_date)) start_date <- min(content$created_time)
+  if (is.null(start_date)) end_date <- max(content$created_time)
 
   content %>%
     filter(created_time >= start_date & created_time <= end_date) %>%
@@ -467,8 +467,8 @@ sort_content_by_access <- function(content, start_date = NULL, end_date = NULL) 
 #' @export
 #' @importFrom rlang .data
 sort_content_by_rversion <- function(content, start_date = NULL, end_date = NULL) {
-  if (is.null(start_date)) start_date <- min(user$created_time)
-  if (is.null(start_date)) end_date <- max(user$created_time)
+  if (is.null(start_date)) start_date <- min(content$created_time)
+  if (is.null(start_date)) end_date <- max(content$created_time)
 
   content %>%
     filter(
@@ -493,8 +493,8 @@ sort_content_by_rversion <- function(content, start_date = NULL, end_date = NULL
 #' @export
 #' @importFrom rlang .data
 sort_content_by_appmode <- function(content, start_date = NULL, end_date = NULL) {
-  if (is.null(start_date)) start_date <- min(user$created_time)
-  if (is.null(start_date)) end_date <- max(user$created_time)
+  if (is.null(start_date)) start_date <- min(content$created_time)
+  if (is.null(start_date)) end_date <- max(content$created_time)
 
   content %>%
     filter(created_time >= start_date & created_time <= end_date) %>%
