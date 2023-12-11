@@ -40,51 +40,81 @@ general_metrics_cards <- purrr::map(
 developers_apps_ranking <- create_dev_ranking(rsc_users, rsc_content)
 max_app <- developers_apps_ranking %>% pull(n_apps) %>% max()
 
-ui <- page_sidebar(
+ui <- page_navbar(
   title = "Shiny apps usage",
-  sidebar = "Sidebar",
-  layout_columns(
-    fill = FALSE,
-    !!!general_metrics_cards
-  ),
-  hr(),
-  h1(textOutput("app_usage_title")),
-  h3("Apps ranking"),
-  dateRangeInput(
-    "date_range",
-    "Select the app usage range:",
-    start = Sys.Date() - 10,
-    end = Sys.Date()
-  ),
-  card(
-    full_screen = TRUE,
-    min_height = "400px",
-    datagridOutput("apps_ranking_chart")
-  ),
-  h3("Daily app usage"),
-  card(
-    full_screen = TRUE,
-    min_height = "1200px",
-    layout_sidebar(
-      sidebar = sidebar(
-        width = 150,
-        selectInput(
-          "selected_app",
-          "Select an application",
-          choices = NULL
-        )
-      ),
-      echarts4rOutput("daily_usage_chart"),
-      p("User consumption"),
-      echarts4rOutput("cumulated_duration_per_user_chart"),
-      echarts4rOutput("cumulated_hits_per_user_chart"),
-
+  sidebar = tagList(
+    dateRangeInput(
+      "date_range",
+      "Select the app usage range:",
+      start = Sys.Date() - 10,
+      end = Sys.Date()
     )
   ),
-  hr(),
-  h1("Consummer data"),
-  layout_column_wrap(
-    width = 1/2,
+  nav_panel(
+    "General metrics",
+    layout_columns(
+      fill = FALSE,
+      !!!general_metrics_cards
+    ),
+    layout_columns(
+      col_widths = rep(6, 4),
+      card(
+        card_header("User roles"),
+        full_screen = TRUE,
+        min_height = "400px",
+        echarts4rOutput("roles_chart"),
+      ),
+      card(
+        card_header("Content access type"),
+        full_screen = TRUE,
+        min_height = "400px",
+        echarts4rOutput("content_access"),
+      ),
+      card(
+        card_header("R versions"),
+        full_screen = TRUE,
+        min_height = "400px",
+        echarts4rOutput("r_versions"),
+      ),
+      card(
+        card_header("Content type"),
+        full_screen = TRUE,
+        min_height = "400px",
+        echarts4rOutput("content_type"),
+      )
+    )
+  ),
+  nav_panel(
+    "App data",
+    h3("Apps ranking"),
+    card(
+      full_screen = TRUE,
+      min_height = "400px",
+      datagridOutput("apps_ranking_chart")
+    ),
+    h3("Daily app usage"),
+    card(
+      full_screen = TRUE,
+      min_height = "1200px",
+      layout_sidebar(
+        sidebar = sidebar(
+          width = 150,
+          selectInput(
+            "selected_app",
+            "Select an application",
+            choices = NULL
+          )
+        ),
+        echarts4rOutput("daily_usage_chart"),
+        p("User consumption"),
+        echarts4rOutput("cumulated_duration_per_user_chart"),
+        echarts4rOutput("cumulated_hits_per_user_chart"),
+
+      )
+    )
+  ),
+  nav_panel(
+    "Consumer data",
     card(
       full_screen = TRUE,
       min_height = "400px",
@@ -115,10 +145,8 @@ ui <- page_sidebar(
       )
     )
   ),
-  hr(),
-  h1("Developers data"),
-  layout_column_wrap(
-    width = 1/2,
+  nav_panel(
+    "Developer data",
     card(
       full_screen = TRUE,
       min_height = "400px",
@@ -152,31 +180,6 @@ ui <- page_sidebar(
         ),
         visNetworkOutput("dev_projects_network")
       )
-    )
-  ),
-  hr(),
-  h1("General data"),
-  layout_column_wrap(
-    width = 1/2,
-    card(
-      full_screen = TRUE,
-      min_height = "400px",
-      echarts4rOutput("roles_chart"),
-    ),
-    card(
-      full_screen = TRUE,
-      min_height = "400px",
-      echarts4rOutput("content_access"),
-    ),
-    card(
-      full_screen = TRUE,
-      min_height = "400px",
-      echarts4rOutput("r_versions"),
-    ),
-    card(
-      full_screen = TRUE,
-      min_height = "400px",
-      echarts4rOutput("content_type"),
     )
   )
 )
@@ -259,23 +262,27 @@ server <- function(input, output, session) {
 
 # General data ------------------------------------------------------------
   output$roles_chart <- renderEcharts4r({
-    sort_users_by_role(rsc_users, input$date_range[1], input$date_range[2]) %>%
-      create_pie_chart("user_role")
+    tmp <- sort_users_by_role(rsc_users, input$date_range[1], input$date_range[2])
+    validate(need(nrow(tmp) > 0, "No data found"))
+    tmp %>% create_pie_chart("user_role")
   })
 
   output$content_access <- renderEcharts4r({
-    sort_content_by_access(rsc_content, input$date_range[1], input$date_range[2]) %>%
-      create_pie_chart("access_type")
+    tmp <- sort_content_by_access(rsc_content, input$date_range[1], input$date_range[2])
+    validate(need(nrow(tmp) > 0, "No data found"))
+    tmp %>% create_pie_chart("access_type")
   })
 
   output$r_versions <- renderEcharts4r({
-    sort_content_by_rversion(rsc_content, input$date_range[1], input$date_range[2]) %>%
-      create_pie_chart("r_version")
+    tmp <- sort_content_by_rversion(rsc_content, input$date_range[1], input$date_range[2])
+    validate(need(nrow(tmp) > 0, "No data found"))
+    tmp %>% create_pie_chart("r_version")
   })
 
   output$content_type <- renderEcharts4r({
-    sort_content_by_appmode(rsc_content, input$date_range[1], input$date_range[2]) %>%
-      create_pie_chart("app_mode")
+    tmp <- sort_content_by_appmode(rsc_content, input$date_range[1], input$date_range[2])
+    validate(need(nrow(tmp) > 0, "No data found"))
+    tmp %>% create_pie_chart("app_mode")
   })
 }
 
