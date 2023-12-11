@@ -4,10 +4,14 @@
 \alias{sort_content_by_appmode}
 \title{Sort RStudio Connect content by app mode}
 \usage{
-sort_content_by_appmode(content)
+sort_content_by_appmode(content, start_date = NULL, end_date = NULL)
 }
 \arguments{
 \item{content}{Get from \link[connectapi]{get_content}.}
+
+\item{start_date}{Date filter.}
+
+\item{end_date}{Date filter.}
 }
 \value{
 A tibble with content grouped by app mode.

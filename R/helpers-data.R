@@ -413,15 +413,22 @@ create_dev_ranking <- function(users, content) {
 #' Sort RStudio Connect users by role
 #'
 #' Users are grouped by user_role to check the
-#' server role repartition.
+#' server role repartition. Using start_date and end_date allows
+#' to filter data given a specific time range.
 #'
 #' @param users Get from \link[connectapi]{get_users}.
+#' @param start_date Date filter.
+#' @param end_date Date filter.
 #'
 #' @return A tibble with user grouped by role.
 #' @export
 #' @importFrom rlang .data
-sort_users_by_role <- function(users) {
+sort_users_by_role <- function(users, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(user$created_time)
+  if (is.null(start_date)) end_date <- max(user$created_time)
+
   users %>%
+    filter(created_time >= start_date & created_time <= end_date) %>%
     group_by(.data$user_role) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100))
@@ -432,12 +439,17 @@ sort_users_by_role <- function(users) {
 #'
 #'
 #' @param content Get from \link[connectapi]{get_content}.
+#' @inheritParams sort_users_by_role
 #'
 #' @return A tibble with content grouped by access type.
 #' @export
 #' @importFrom rlang .data
-sort_content_by_access <- function(content) {
+sort_content_by_access <- function(content, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(user$created_time)
+  if (is.null(start_date)) end_date <- max(user$created_time)
+
   content %>%
+    filter(created_time >= start_date & created_time <= end_date) %>%
     group_by(.data$access_type) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100))
@@ -449,13 +461,21 @@ sort_content_by_access <- function(content) {
 #'
 #'
 #' @param content Get from \link[connectapi]{get_content}.
+#' @inheritParams sort_users_by_role
 #'
 #' @return A tibble with content grouped by R version.
 #' @export
 #' @importFrom rlang .data
-sort_content_by_rversion <- function(content) {
+sort_content_by_rversion <- function(content, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(user$created_time)
+  if (is.null(start_date)) end_date <- max(user$created_time)
+
   content %>%
-    filter(!is.na(.data$r_version)) %>%
+    filter(
+      !is.na(.data$r_version) &
+      created_time >= start_date &
+      created_time <= end_date
+    ) %>%
     group_by(.data$r_version) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100, 1))
@@ -467,12 +487,17 @@ sort_content_by_rversion <- function(content) {
 #'
 #'
 #' @param content Get from \link[connectapi]{get_content}.
+#' @inheritParams sort_users_by_role
 #'
 #' @return A tibble with content grouped by app mode.
 #' @export
 #' @importFrom rlang .data
-sort_content_by_appmode <- function(content) {
+sort_content_by_appmode <- function(content, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(user$created_time)
+  if (is.null(start_date)) end_date <- max(user$created_time)
+
   content %>%
+    filter(created_time >= start_date & created_time <= end_date) %>%
     group_by(.data$app_mode) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100, 1))

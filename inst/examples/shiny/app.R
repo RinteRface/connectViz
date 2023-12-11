@@ -153,6 +153,31 @@ ui <- page_sidebar(
         visNetworkOutput("dev_projects_network")
       )
     )
+  ),
+  hr(),
+  h1("General data"),
+  layout_column_wrap(
+    width = 1/2,
+    card(
+      full_screen = TRUE,
+      min_height = "400px",
+      echarts4rOutput("roles_chart"),
+    ),
+    card(
+      full_screen = TRUE,
+      min_height = "400px",
+      echarts4rOutput("content_access"),
+    ),
+    card(
+      full_screen = TRUE,
+      min_height = "400px",
+      echarts4rOutput("r_versions"),
+    ),
+    card(
+      full_screen = TRUE,
+      min_height = "400px",
+      echarts4rOutput("content_type"),
+    )
   )
 )
 
@@ -231,6 +256,27 @@ server <- function(input, output, session) {
     reactive(input$app_developer)
   )
 
+
+# General data ------------------------------------------------------------
+  output$roles_chart <- renderEcharts4r({
+    sort_users_by_role(rsc_users, input$date_range[1], input$date_range[2]) %>%
+      create_pie_chart("user_role")
+  })
+
+  output$content_access <- renderEcharts4r({
+    sort_content_by_access(rsc_content, input$date_range[1], input$date_range[2]) %>%
+      create_pie_chart("access_type")
+  })
+
+  output$r_versions <- renderEcharts4r({
+    sort_content_by_rversion(rsc_content, input$date_range[1], input$date_range[2]) %>%
+      create_pie_chart("r_version")
+  })
+
+  output$content_type <- renderEcharts4r({
+    sort_content_by_appmode(rsc_content, input$date_range[1], input$date_range[2]) %>%
+      create_pie_chart("app_mode")
+  })
 }
 
 shinyApp(ui, server)
