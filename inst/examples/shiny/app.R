@@ -92,7 +92,7 @@ ui <- page_navbar(
       min_height = "400px",
       datagridOutput("apps_ranking_chart")
     ),
-    h3("Daily app usage"),
+    h3("Single app usage"),
     card(
       full_screen = TRUE,
       min_height = "1200px",
@@ -106,6 +106,7 @@ ui <- page_navbar(
           )
         ),
         echarts4rOutput("daily_usage_chart"),
+        echarts4rOutput("daily_sessions_chart"),
         p("User consumption"),
         echarts4rOutput("cumulated_duration_per_user_chart"),
         echarts4rOutput("cumulated_hits_per_user_chart"),
@@ -221,6 +222,8 @@ server <- function(input, output, session) {
   })
 
   output$daily_usage_chart <- create_app_daily_usage_chart(daily_app_usage)
+  output$daily_sessions_chart <-create_app_daily_session_chart(daily_app_usage)
+
   output$cumulated_duration_per_user_chart <- create_cumulated_duration_per_user(
     reactive(apps_ranking()[[1]]),
     selected_app = reactive(input$selected_app)

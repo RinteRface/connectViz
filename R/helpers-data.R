@@ -3,15 +3,15 @@
 #' @param app app_name to filter.
 #' @param logs Given by RSC database.
 #'
-#' @return A vector containing dates of usage for
-#' the given app.
+#' @return A tibble containing dates of usage for
+#' the given app as well as the correponding session duration.
 #' @import dplyr
 #' @export
 #' @importFrom rlang .data
 get_rsc_app_dates <- function(app, logs) {
   logs %>%
     filter(.data$app_name == !!app) %>%
-    pull(.data$started)
+    select(.data$started, .data$duration)
 }
 
 
@@ -22,7 +22,7 @@ get_rsc_app_dates <- function(app, logs) {
 #' @param logs Given by RSC database.
 #'
 #' @return A 3 columns tibble with app name, usage and date of usage (nested tibble).
-#' @import dplyr purrr
+#' @import dplyr purrr lubridate
 #' @export
 #' @importFrom rlang .data
 get_rsc_apps_usage <- function(logs) {
@@ -31,7 +31,6 @@ get_rsc_apps_usage <- function(logs) {
   tmp_apps_usage <- logs %>%
     group_by(.data$app_name) %>%
     count(sort = TRUE)
-
   # handle dates. It's quite heavy but we need for
   # each app the dates of usage and a count for each date.
   # Reason why we use table(). We also need to nest them
@@ -44,19 +43,29 @@ get_rsc_apps_usage <- function(logs) {
     get_rsc_app_dates,
     logs
   ) %>%
-    map(tibble::as_tibble) %>%
     map(
       ~ {
-        tbl <- ..1 %>%
+        dat_in <- ..1 %>%
           # Be careful, RSC provides datetime format but
           # this is too specific to count at the scale of a day.
           # We must floor to the corresponding day.
-          mutate(value = lubridate::floor_date(value, "day")) %>%
+          mutate(started = floor_date(.data$started, "day"))
+
+        tbl <- dat_in %>%
+          select(-.data$duration) %>%
           table() %>%
           tibble::as_tibble()
 
         names(tbl) <- c("Date", "Freq")
-        tbl
+
+        # Create duration table
+        cumulated_durations <- do.call(rbind.data.frame, map(tbl$Date, ~ {
+          dat_in %>%
+            filter(started == as_datetime(..1)) %>%
+            summarise(cum_dur = minute(seconds_to_period(sum(.data$duration, na.rm = TRUE))))
+        }))
+
+        cbind(tbl, cumulated_durations)
       }
     ) %>%
     map(nest_by, .key = "calendar_data") %>%
@@ -270,7 +279,7 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
   grouped_by_date <- reactive({
     req(nrow(events()) > 0)
     events() %>%
-      mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
+      mutate(floored_started = floor_date(.data$started, "day")) %>%
       group_by(.data$floored_started) %>%
       count(sort = TRUE) %>%
       select(Date = .data$floored_started, Freq = .data$n)

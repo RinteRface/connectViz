@@ -74,13 +74,13 @@ create_table_sparkline <- function(table) {
       column = "calendar_data",
       renderer = function(data) {
         data$Month <- data$Date %>% purrr::map(~ {
-          lubridate::month(..1, label = TRUE)
+          month(..1, label = TRUE)
         }) %>%
           unlist() %>%
           as.character()
 
         data$Month_code <- data$Date %>% purrr::map_dbl(~ {
-          lubridate::month(..1)
+          month(..1)
         })
 
         # gather by month since it is too laggy

@@ -12,8 +12,8 @@ get_rsc_app_dates(app, logs)
 \item{logs}{Given by RSC database.}
 }
 \value{
-A vector containing dates of usage for
-the given app.
+A tibble containing dates of usage for
+the given app as well as the correponding session duration.
 }
 \description{
 Extract app usage dates
