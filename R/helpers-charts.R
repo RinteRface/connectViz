@@ -26,6 +26,8 @@ create_calendar_chart <- function(
 
   Date <- Freq <- NULL
 
+  session <- get("session", parent.frame(2))
+
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
     if (is.reactive(calendar_data)) calendar_data <- calendar_data()
@@ -51,7 +53,16 @@ create_calendar_chart <- function(
       ) %>%
       e_title(title, subtitle) %>%
       e_tooltip() %>%
-      e_legend(show = FALSE)
+      e_legend(show = FALSE) %>%
+      e_on(
+        list(),
+        sprintf(
+          "function(e) {
+            Shiny.setInputValue('%s', e.data.value[0], {priority: 'event'});
+          }",
+          session$ns("selected_date")
+        )
+      )
 
     if (!is.null(callback)) {
       calendar_chart %>% htmlwidgets::onRender(callback)
@@ -72,8 +83,8 @@ create_calendar_chart <- function(
 #' @param app_usage Returned by \link{get_app_daily_usage}.
 #' @return A calendar chart displaying daily app usage.
 #' @export
-create_app_daily_usage_chart <- function(app_usage) {
-  create_calendar_chart(app_usage, "Overall app usage", "units: user sessions/day")
+create_app_daily_usage_chart <- function(app_usage, ...) {
+  create_calendar_chart(app_usage, "Overall app usage", "units: user sessions/day", ...)
 }
 
 

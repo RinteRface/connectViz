@@ -4,7 +4,7 @@
 \alias{create_app_daily_usage_chart}
 \title{Daily app usage chart}
 \usage{
-create_app_daily_usage_chart(app_usage)
+create_app_daily_usage_chart(app_usage, ...)
 }
 \arguments{
 \item{app_usage}{Returned by \link{get_app_daily_usage}.}
