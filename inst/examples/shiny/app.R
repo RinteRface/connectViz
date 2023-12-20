@@ -106,6 +106,7 @@ ui <- page_navbar(
           )
         ),
         echarts4rOutput("daily_usage_chart"),
+        dataTableOutput("daily_usage_table"),
         echarts4rOutput("daily_sessions_chart"),
         p("User consumption"),
         echarts4rOutput("cumulated_duration_per_user_chart"),
@@ -222,6 +223,19 @@ server <- function(input, output, session) {
   })
 
   output$daily_usage_chart <- create_app_daily_usage_chart(daily_app_usage)
+  output$daily_usage_table <- renderDataTable({
+    req(input$selected_date)
+    apps_ranking()[[1]] %>%
+      mutate(
+        started = lubridate::as_date(started),
+        duration = lubridate::minute(lubridate::seconds_to_period(duration))
+      ) %>%
+      filter(
+      .data$app_name == input$selected_app &
+      .data$started == input$selected_date
+    ) %>%
+      select(username, duration)
+  }, options = list(colnames = c("duration (in minutes)" = 2), pageLength = 5))
   output$daily_sessions_chart <-create_app_daily_session_chart(daily_app_usage)
 
   output$cumulated_duration_per_user_chart <- create_cumulated_duration_per_user(
