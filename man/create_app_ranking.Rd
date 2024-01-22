@@ -4,7 +4,7 @@
 \alias{create_app_ranking}
 \title{Process app data for ranking table}
 \usage{
-create_app_ranking(content, users, apps)
+create_app_ranking(content, users, apps, start_date = NULL, end_date = NULL)
 }
 \arguments{
 \item{content}{Get from \link[connectapi]{get_content}. Can be reactive.}
@@ -12,6 +12,12 @@ create_app_ranking(content, users, apps)
 \item{users}{Get from \link[connectapi]{get_users}. Can be reactive.}
 
 \item{apps}{Get from \link[connectapi]{get_usage_shiny}. Can be reactive.}
+
+\item{start_date}{Default to minimum calendar_data date. Could also be
+an input value with Shiny.}
+
+\item{end_date}{Default to maximum calendar_data date. Could also be
+an input value with Shiny.}
 }
 \value{
 A list containing: \verb{[[1]]} merged data between app usage and users data.

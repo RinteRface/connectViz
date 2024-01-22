@@ -16,15 +16,22 @@
 #' @import echarts4r
 #' @importFrom shiny validate need is.reactive
 create_calendar_chart <- function(
-  calendar_data,
-  title,
-  subtitle = NULL,
-  start_date = NULL,
-  end_date = NULL,
-  callback = NULL
+    calendar_data,
+    title,
+    subtitle = NULL,
+    start_date = NULL,
+    end_date = NULL,
+    callback = NULL
 ) {
 
   Date <- Freq <- NULL
+
+  tryCatch({
+    session <- get("session", parent.frame(2))
+    ns <- session$ns
+  }, error = function(e) {
+    ns <- identity
+  })
 
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
@@ -51,7 +58,16 @@ create_calendar_chart <- function(
       ) %>%
       e_title(title, subtitle) %>%
       e_tooltip() %>%
-      e_legend(show = FALSE)
+      e_legend(show = FALSE) %>%
+      e_on(
+        list(),
+        sprintf(
+          "function(e) {
+            Shiny.setInputValue('%s', e.data.value[0], {priority: 'event'});
+          }",
+          ns("selected_date")
+        )
+      )
 
     if (!is.null(callback)) {
       calendar_chart %>% htmlwidgets::onRender(callback)
@@ -70,13 +86,64 @@ create_calendar_chart <- function(
 #' See \url{https://echarts4r.john-coene.com/articles/chart_types.html#calendar-1}.
 #'.
 #' @param app_usage Returned by \link{get_app_daily_usage}.
+#' @param ... Pass down any param to \link{create_calendar_chart}.
 #' @return A calendar chart displaying daily app usage.
 #' @export
-create_app_daily_usage_chart <- function(app_usage) {
-  create_calendar_chart(app_usage, "Overall app usage")
+create_app_daily_usage_chart <- function(app_usage, ...) {
+  create_calendar_chart(app_usage, "Overall app usage", "units: user sessions/day", ...)
 }
 
 
+#' Generic calendar chart generator
+#'
+#' @param calendar_data Calendar chart data.
+#' @param title Chart title.
+#' @param subtitle Chart subtitle.
+#' @param start_date Default to minimum calendar_data date. Could also be
+#' an input value with Shiny.
+#' @param end_date Default to maximum calendar_data date. Could also be
+#' an input value with Shiny.
+#' @param callback JS function to pass to \link[htmlwidgets]{onRender}. This is
+#' useful to access the widget API on the R side at render time
+#' and add events on the fly.
+#'
+#' @return An echarts4r line chart
+#' @export
+create_app_daily_session_chart <- function(
+  calendar_data,
+  title = "Cumulated daily usage",
+  subtitle = "time units: minutes",
+  start_date = NULL,
+  end_date = NULL,
+  callback = NULL
+) {
+
+  cum_dur <- NULL
+
+  renderEcharts4r({
+    validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
+    if (is.reactive(calendar_data)) calendar_data <- calendar_data()
+    if (is.null(start_date)) start_date <- min(calendar_data$Date)
+    if (is.null(end_date)) end_date <- max(calendar_data$Date)
+    if (is.reactive(start_date)) start_date <- start_date()
+    if (is.reactive(end_date)) end_date <- end_date()
+    if (is.reactive(title)) title <- title()
+
+    usage_chart <- calendar_data %>%
+      filter(.data$Date >= start_date & .data$Date <= end_date) %>%
+      e_charts(Date) %>%
+      e_line(cum_dur) %>%
+      e_title(title, subtitle) %>%
+      e_tooltip() %>%
+      e_legend()
+
+    if (!is.null(callback)) {
+      usage_chart %>% htmlwidgets::onRender(callback)
+    } else {
+      usage_chart
+    }
+  })
+}
 
 
 #' Daily app consumption for selected user
@@ -111,10 +178,10 @@ create_user_daily_consumption_chart <- function(usage) {
 #' @importFrom rlang .data
 #' @importFrom shiny req is.reactive
 create_cumulated_duration_per_user <- function(
-  apps_usage,
-  start_date = NULL,
-  end_date = NULL,
-  selected_app) {
+    apps_usage,
+    start_date = NULL,
+    end_date = NULL,
+    selected_app) {
 
   username <- cum_duration <- NULL
 
@@ -128,8 +195,8 @@ create_cumulated_duration_per_user <- function(
     apps_usage %>%
       filter(
         .data$started >= start_date &
-        .data$started <= end_date &
-        .data$app_name == !!selected_app()
+          .data$started <= end_date &
+          .data$app_name == !!selected_app()
       ) %>%
       group_by(.data$username) %>%
       summarise(cum_duration = as.numeric(round(sum(.data$duration) / 3600, 1))) %>%
@@ -165,10 +232,10 @@ create_cumulated_duration_per_user <- function(
 #' @importFrom rlang .data
 #' @importFrom shiny req is.reactive
 create_cumulated_hits_per_user <- function(
-  apps_usage,
-  start_date = NULL,
-  end_date = NULL,
-  selected_app
+    apps_usage,
+    start_date = NULL,
+    end_date = NULL,
+    selected_app
 ) {
 
   username <- NULL
@@ -183,8 +250,8 @@ create_cumulated_hits_per_user <- function(
     apps_usage %>%
       filter(
         .data$started >= start_date &
-        .data$started <= end_date &
-        .data$app_name == !!selected_app()
+          .data$started <= end_date &
+          .data$app_name == !!selected_app()
       ) %>%
       group_by(.data$username) %>%
       summarise(n = n()) %>% # prefer summarize over sort to remove grouping

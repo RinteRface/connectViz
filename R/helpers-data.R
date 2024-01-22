@@ -3,15 +3,15 @@
 #' @param app app_name to filter.
 #' @param logs Given by RSC database.
 #'
-#' @return A vector containing dates of usage for
-#' the given app.
+#' @return A tibble containing dates of usage for
+#' the given app as well as the correponding session duration.
 #' @import dplyr
 #' @export
 #' @importFrom rlang .data
 get_rsc_app_dates <- function(app, logs) {
   logs %>%
     filter(.data$app_name == !!app) %>%
-    pull(.data$started)
+    select(.data$started, .data$duration)
 }
 
 
@@ -22,7 +22,7 @@ get_rsc_app_dates <- function(app, logs) {
 #' @param logs Given by RSC database.
 #'
 #' @return A 3 columns tibble with app name, usage and date of usage (nested tibble).
-#' @import dplyr purrr
+#' @import dplyr purrr lubridate
 #' @export
 #' @importFrom rlang .data
 get_rsc_apps_usage <- function(logs) {
@@ -31,7 +31,6 @@ get_rsc_apps_usage <- function(logs) {
   tmp_apps_usage <- logs %>%
     group_by(.data$app_name) %>%
     count(sort = TRUE)
-
   # handle dates. It's quite heavy but we need for
   # each app the dates of usage and a count for each date.
   # Reason why we use table(). We also need to nest them
@@ -44,19 +43,29 @@ get_rsc_apps_usage <- function(logs) {
     get_rsc_app_dates,
     logs
   ) %>%
-    map(tibble::as_tibble) %>%
     map(
       ~ {
-        tbl <- ..1 %>%
+        dat_in <- ..1 %>%
           # Be careful, RSC provides datetime format but
           # this is too specific to count at the scale of a day.
           # We must floor to the corresponding day.
-          mutate(value = lubridate::floor_date(value, "day")) %>%
+          mutate(started = floor_date(.data$started, "day"))
+
+        tbl <- dat_in %>%
+          select(-.data$duration) %>%
           table() %>%
           tibble::as_tibble()
 
         names(tbl) <- c("Date", "Freq")
-        tbl
+
+        # Create duration table
+        cumulated_durations <- do.call(rbind.data.frame, map(tbl$Date, ~ {
+          dat_in %>%
+            filter(started == as_datetime(..1)) %>%
+            summarise(cum_dur = minute(seconds_to_period(sum(.data$duration, na.rm = TRUE))))
+        }))
+
+        cbind(tbl, cumulated_durations)
       }
     ) %>%
     map(nest_by, .key = "calendar_data") %>%
@@ -270,7 +279,7 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
   grouped_by_date <- reactive({
     req(nrow(events()) > 0)
     events() %>%
-      mutate(floored_started = lubridate::floor_date(.data$started, "day")) %>%
+      mutate(floored_started = floor_date(.data$started, "day")) %>%
       group_by(.data$floored_started) %>%
       count(sort = TRUE) %>%
       select(Date = .data$floored_started, Freq = .data$n)
@@ -284,6 +293,10 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
 #' See \link{create_app_ranking_table}.
 #'
 #' @inheritParams merge_rsc_data
+#' @param start_date Default to minimum calendar_data date. Could also be
+#' an input value with Shiny.
+#' @param end_date Default to maximum calendar_data date. Could also be
+#' an input value with Shiny.
 #'
 #' @return A list containing: `[[1]]` merged data between app usage and users data.
 #' `[[2]]`: data to be digested by \link{create_app_ranking_table}.
@@ -291,9 +304,21 @@ get_user_daily_consumption <- function(content, users, apps, selected_user) {
 #' @import dplyr
 #' @importFrom rlang .data quo eval_tidy
 #' @importFrom shiny reactive is.reactive
-create_app_ranking <- function(content, users, apps) {
+create_app_ranking <- function(content, users, apps, start_date = NULL, end_date = NULL) {
   tmp <- quo({
     rsc_data_merged <- merge_rsc_data(content, users, apps)
+    if (is.null(start_date)) start_date <- min(rsc_data_merged$apps_usage_merged$started)
+    # Note: this might be surprising but some end date are not available in ended so
+    # we have to take the max of the start date.
+    if (is.null(end_date)) end_date <- max(rsc_data_merged$apps_usage_merged$started)
+    if (is.reactive(start_date)) start_date <- start_date()
+    if (is.reactive(end_date)) end_date <- end_date()
+
+    rsc_data_merged[[3]] <- rsc_data_merged[[3]] %>%
+      filter(
+        .data$started >= start_date &
+          .data$started <= end_date
+      )
 
     processed_rsc_apps_usage <- rsc_data_merged[[3]] %>%
       get_rsc_apps_usage() %>%
@@ -308,7 +333,8 @@ create_app_ranking <- function(content, users, apps) {
     list(rsc_data_merged[[3]], processed_rsc_apps_usage)
   })
 
-  if (is.reactive(users) || is.reactive(content) || is.reactive(apps)) {
+  if (is.reactive(users) || is.reactive(content) || is.reactive(apps) ||
+      is.reactive(start_date) || is.reactive(end_date)) {
     if (is.reactive(users)) user <- users()
     if (is.reactive(content)) content <- content()
     if (is.reactive(apps)) apps <- apps()
@@ -396,15 +422,22 @@ create_dev_ranking <- function(users, content) {
 #' Sort RStudio Connect users by role
 #'
 #' Users are grouped by user_role to check the
-#' server role repartition.
+#' server role repartition. Using start_date and end_date allows
+#' to filter data given a specific time range.
 #'
 #' @param users Get from \link[connectapi]{get_users}.
+#' @param start_date Date filter.
+#' @param end_date Date filter.
 #'
 #' @return A tibble with user grouped by role.
 #' @export
 #' @importFrom rlang .data
-sort_users_by_role <- function(users) {
+sort_users_by_role <- function(users, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(users$created_time)
+  if (is.null(end_date)) end_date <- max(users$created_time)
+
   users %>%
+    filter(.data$created_time >= start_date & .data$created_time <= end_date) %>%
     group_by(.data$user_role) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100))
@@ -415,12 +448,17 @@ sort_users_by_role <- function(users) {
 #'
 #'
 #' @param content Get from \link[connectapi]{get_content}.
+#' @inheritParams sort_users_by_role
 #'
 #' @return A tibble with content grouped by access type.
 #' @export
 #' @importFrom rlang .data
-sort_content_by_access <- function(content) {
+sort_content_by_access <- function(content, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(content$created_time)
+  if (is.null(end_date)) end_date <- max(content$created_time)
+
   content %>%
+    filter(.data$created_time >= start_date & .data$created_time <= end_date) %>%
     group_by(.data$access_type) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100))
@@ -432,13 +470,21 @@ sort_content_by_access <- function(content) {
 #'
 #'
 #' @param content Get from \link[connectapi]{get_content}.
+#' @inheritParams sort_users_by_role
 #'
 #' @return A tibble with content grouped by R version.
 #' @export
 #' @importFrom rlang .data
-sort_content_by_rversion <- function(content) {
+sort_content_by_rversion <- function(content, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(content$created_time)
+  if (is.null(end_date)) end_date <- max(content$created_time)
+
   content %>%
-    filter(!is.na(.data$r_version)) %>%
+    filter(
+      !is.na(.data$r_version) &
+      .data$created_time >= start_date &
+      .data$created_time <= end_date
+    ) %>%
     group_by(.data$r_version) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100, 1))
@@ -464,12 +510,17 @@ sort_content_by_pyversion <- function(content) {
 #'
 #'
 #' @param content Get from \link[connectapi]{get_content}.
+#' @inheritParams sort_users_by_role
 #'
 #' @return A tibble with content grouped by app mode.
 #' @export
 #' @importFrom rlang .data
-sort_content_by_appmode <- function(content) {
+sort_content_by_appmode <- function(content, start_date = NULL, end_date = NULL) {
+  if (is.null(start_date)) start_date <- min(content$created_time)
+  if (is.null(end_date)) end_date <- max(content$created_time)
+
   content %>%
+    filter(.data$created_time >= start_date & .data$created_time <= end_date) %>%
     group_by(.data$app_mode) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100, 1))

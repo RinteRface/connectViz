@@ -68,45 +68,62 @@ Important note: with a basic __publisher__ API key, we can only recover the data
 #### Most used apps
 
 ```{r}
-apps_ranking <- create_app_ranking(rsc_content, rsc_users, apps_usage)
-card(
-  full_screen = TRUE,
-  create_app_ranking_table(apps_ranking),
+dateRangeInput(
+  "date_range",
+  "Select the app usage range:",
+  start = Sys.Date() - 10,
+  end = Sys.Date()
 )
+apps_ranking <- create_app_ranking(
+  rsc_content, 
+  rsc_users, 
+  apps_usage,
+  start_date = reactive(input$date_range[1]),
+  end_date = reactive(input$date_range[2])
+)
+
+renderUI({
+  card(
+    full_screen = TRUE,
+    title = sprintf("Ranking between %s and %s", input$date_range[1], input$date_range[2]),
+    create_app_ranking_table(apps_ranking),
+  )
+})
 ```
 
 #### Daily app usage
 
 ```{r}
-
-daily_app_usage <- get_app_daily_usage(apps_ranking[[2]], reactive(input$selected_app))
+daily_app_usage <- get_app_daily_usage(apps_ranking()[[2]], reactive(input$selected_app))
 ```
 
 ```{r}
-card(
-  full_screen = TRUE,
-  card_header("App usage"),
-  layout_sidebar(
-    sidebar = sidebar(
-      width = 150,
-      selectInput(
-        "selected_app", 
-        "Select an application", 
-        apps_ranking[[2]]$app_name
+renderUI({
+  card(
+    full_screen = TRUE,
+    card_header("App usage"),
+    layout_sidebar(
+      sidebar = sidebar(
+        width = 150,
+        selectInput(
+          "selected_app", 
+          "Select an application", 
+          apps_ranking()[[2]]$app_name
+        )
+      ),
+      p("Daily app usage"),
+      create_app_daily_usage_chart(daily_app_usage),
+      create_cumulated_duration_per_user(
+        apps_ranking()[[1]],
+        selected_app = reactive(input$selected_app)
+      ),
+      create_cumulated_hits_per_user(
+        apps_ranking()[[1]], 
+        selected_app = reactive(input$selected_app)
       )
-    ),
-    p("Daily app usage"),
-    create_app_daily_usage_chart(daily_app_usage),
-    create_cumulated_duration_per_user(
-      apps_ranking[[1]],
-      selected_app = reactive(input$selected_app)
-    ),
-    create_cumulated_hits_per_user(
-      apps_ranking[[1]], 
-      selected_app = reactive(input$selected_app)
     )
   )
-)
+})
 ```
 
 ### Consumer data
@@ -197,7 +214,7 @@ dev_projects_card <- card(
       )
     ),
     create_dev_project_overview(
-      rsc_client, apps_ranking[[1]], 
+      rsc_client, apps_ranking()[[1]], 
       reactive(input$app_developer)
     )
   )
