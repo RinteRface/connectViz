@@ -26,7 +26,12 @@ create_calendar_chart <- function(
 
   Date <- Freq <- NULL
 
-  session <- get("session", parent.frame(2))
+  tryCatch({
+    session <- get("session", parent.frame(2))
+    ns <- session$ns
+  }, error = function(e) {
+    ns <- identity
+  })
 
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))
@@ -60,7 +65,7 @@ create_calendar_chart <- function(
           "function(e) {
             Shiny.setInputValue('%s', e.data.value[0], {priority: 'event'});
           }",
-          session$ns("selected_date")
+          ns("selected_date")
         )
       )
 
