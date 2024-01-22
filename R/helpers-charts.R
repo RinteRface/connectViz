@@ -81,6 +81,7 @@ create_calendar_chart <- function(
 #' See \url{https://echarts4r.john-coene.com/articles/chart_types.html#calendar-1}.
 #'.
 #' @param app_usage Returned by \link{get_app_daily_usage}.
+#' @param ... Pass down any param to \link{create_calendar_chart}.
 #' @return A calendar chart displaying daily app usage.
 #' @export
 create_app_daily_usage_chart <- function(app_usage, ...) {
@@ -111,6 +112,8 @@ create_app_daily_session_chart <- function(
   end_date = NULL,
   callback = NULL
 ) {
+
+  cum_dur <- NULL
 
   renderEcharts4r({
     validate(need(nrow(calendar_data()) > 0, "No calendar data found ..."))

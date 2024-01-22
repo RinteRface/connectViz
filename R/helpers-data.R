@@ -433,11 +433,11 @@ create_dev_ranking <- function(users, content) {
 #' @export
 #' @importFrom rlang .data
 sort_users_by_role <- function(users, start_date = NULL, end_date = NULL) {
-  if (is.null(start_date)) start_date <- min(user$created_time)
-  if (is.null(start_date)) end_date <- max(user$created_time)
+  if (is.null(start_date)) start_date <- min(users$created_time)
+  if (is.null(end_date)) end_date <- max(users$created_time)
 
   users %>%
-    filter(created_time >= start_date & created_time <= end_date) %>%
+    filter(.data$created_time >= start_date & .data$created_time <= end_date) %>%
     group_by(.data$user_role) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100))
@@ -455,10 +455,10 @@ sort_users_by_role <- function(users, start_date = NULL, end_date = NULL) {
 #' @importFrom rlang .data
 sort_content_by_access <- function(content, start_date = NULL, end_date = NULL) {
   if (is.null(start_date)) start_date <- min(content$created_time)
-  if (is.null(start_date)) end_date <- max(content$created_time)
+  if (is.null(end_date)) end_date <- max(content$created_time)
 
   content %>%
-    filter(created_time >= start_date & created_time <= end_date) %>%
+    filter(.data$created_time >= start_date & .data$created_time <= end_date) %>%
     group_by(.data$access_type) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100))
@@ -477,13 +477,13 @@ sort_content_by_access <- function(content, start_date = NULL, end_date = NULL) 
 #' @importFrom rlang .data
 sort_content_by_rversion <- function(content, start_date = NULL, end_date = NULL) {
   if (is.null(start_date)) start_date <- min(content$created_time)
-  if (is.null(start_date)) end_date <- max(content$created_time)
+  if (is.null(end_date)) end_date <- max(content$created_time)
 
   content %>%
     filter(
       !is.na(.data$r_version) &
-      created_time >= start_date &
-      created_time <= end_date
+      .data$created_time >= start_date &
+      .data$created_time <= end_date
     ) %>%
     group_by(.data$r_version) %>%
     summarize(n = n()) %>%
@@ -503,10 +503,10 @@ sort_content_by_rversion <- function(content, start_date = NULL, end_date = NULL
 #' @importFrom rlang .data
 sort_content_by_appmode <- function(content, start_date = NULL, end_date = NULL) {
   if (is.null(start_date)) start_date <- min(content$created_time)
-  if (is.null(start_date)) end_date <- max(content$created_time)
+  if (is.null(end_date)) end_date <- max(content$created_time)
 
   content %>%
-    filter(created_time >= start_date & created_time <= end_date) %>%
+    filter(.data$created_time >= start_date & .data$created_time <= end_date) %>%
     group_by(.data$app_mode) %>%
     summarize(n = n()) %>%
     mutate(Percentage = round(n / sum(n) * 100, 1))

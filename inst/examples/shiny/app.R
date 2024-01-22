@@ -2,7 +2,6 @@ library(shiny)
 library(connectapi) # Tested with 0.1.0.9031
 library(connectViz)
 library(dplyr)
-library(shiny)
 library(bslib)
 library(echarts4r)
 library(toastui)
@@ -46,8 +45,16 @@ ui <- page_navbar(
     dateRangeInput(
       "date_range",
       "Select the app usage range:",
-      start = Sys.Date() - 10,
+      start = min(rsc_content[["created_time"]]),
       end = Sys.Date()
+    ),
+    span(
+      "About usage data",
+      tooltip(
+        icon("info-circle"),
+        "Important: with a standard Posit Connect API key, you can ONLY see the content
+        YOU OWN. Admin API key has access to ALL data."
+      )
     )
   ),
   nav_panel(
@@ -214,7 +221,7 @@ server <- function(input, output, session) {
 
   daily_app_usage <- get_app_daily_usage(reactive(apps_ranking()[[2]]), reactive(input$selected_app))
 
-  observeEvent(apps_ranking, {
+  observeEvent(apps_ranking(), {
     updateSelectInput(
       session,
       "selected_app",
